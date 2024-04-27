@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.353">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Devon Grossett">
+
+<title>Big Data Assignment 2</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="Big Data Assignment 2_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Big Data Assignment 2_files/libs/quarto-html/quarto.js"></script>
+<script src="Big Data Assignment 2_files/libs/quarto-html/popper.min.js"></script>
+<script src="Big Data Assignment 2_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Big Data Assignment 2_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Big Data Assignment 2_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Big Data Assignment 2_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Big Data Assignment 2_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Big Data Assignment 2_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Big Data Assignment 2_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Big Data Assignment 2</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Devon Grossett </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="question-1-manifold-learning" class="level2">
+<h2 class="anchored" data-anchor-id="question-1-manifold-learning">Question 1: Manifold Learning</h2>
+<p>For this question I have selected the <a href="https://archive.ics.uci.edu/dataset/54/isolet">Isolet dataset</a> from the UCI Machine Learning Repository. It contains data from 150 subject who were recorded speaking each letter of the English alphabet twice, for a total of 7,797 observations (3 observations are missing). The purpose of this dataset is to train a model to classify recordings of speech by what letter of the alphabet is being said. The data has already been split into a training set of 6,238 observations (120 subjects) and a training set of 1,559 observations (30 subjects). I will limit my analysis to the training set.</p>
+<p>There are 617 features, the majority of the which (448) are discrete Fourier transform coefficients of different parts of the waveform corresponding to the different sonorant intervals (SON) of each letter. The other features are a variety of other wave measurements corresponding to different SON, such as zero-crossing rate, amplitude, and duration. Detailed information can be found in the paper by <span class="citation" data-cites="slr">Fanty and Cole (<a href="#ref-slr" role="doc-biblioref">1990</a>)</span>.</p>
+<p>This dataset provides a highly dimensional problem with which to test different dimensionality reduction techniques, with applications to the real world. Voice recognition software is becoming more widespread with voice assistants such as Alexa and Siri, which rely on models to translate voice recordings into text that it can parse.</p>
+<section id="principal-component-analysis-pca" class="level3">
+<h3 class="anchored" data-anchor-id="principal-component-analysis-pca">Principal Component Analysis (PCA)</h3>
+<p>Here we have performed PCA on our training set. This is a linear technique that finds linear combinations of the original features that are uncorrelated and maximise the variance of the new principal components. As shown in <a href="#fig-var_explained-1">Figure&nbsp;1 (a)</a>, the first PC contains 19% of the variance of overall variance in our data, then 9% for the next PC. From <a href="#fig-var_explained-2">Figure&nbsp;1 (b)</a>, we can also see that cumulatively, half of the variance is explained by the first 8 PCs, although this tapers off and it isn’t until the 112th PC has been added that 90% of the overall variance in our data is explained by its principal components.</p>
+<div id="fig-var_explained" class="cell quarto-layout-panel">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-var_explained-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Big-Data-Assignment-2_files/figure-html/fig-var_explained-1.png" class="img-fluid figure-img" data-ref-parent="fig-var_explained" width="672"></p>
+<figcaption class="figure-caption">(a) Individual %</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-var_explained-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Big-Data-Assignment-2_files/figure-html/fig-var_explained-2.png" class="img-fluid figure-img" data-ref-parent="fig-var_explained" width="672"></p>
+<figcaption class="figure-caption">(b) Cumulative %</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;1: Variance explained by successive principal components (up to first 30)</figcaption><p></p>
+</figure>
+</div>
+<p><a href="#fig-pca_plot">Figure&nbsp;2</a> plots the target classes against the first two PCs of the data. Due to the large number of classes, and the number of data points plotted, I also found it useful to take a stratified sample of 20% of the data to declutter the plot as well as using the letter to identify which class each plot point is. I will also do this when analyzing the other methods in this report to make the visualisations clearer.</p>
+<p>We do see some clusters of letters forming in <a href="#fig-pca_plot-2">Figure&nbsp;2 (b)</a>. In the bottom left, “R” has been quite well isolated, which I suspect is due to it having quite a unique sound when spoken. In contrast to this, on the right hand side of <a href="#fig-pca_plot-2">Figure&nbsp;2 (b)</a>, there is a mix of letters like “B”, “C”, “D”, “E”, “P”, “T”, and “Z” clustered together. These letters all share a common /iy/ sound on the end when spoken (like the “ee” in “fleece”), which explains why they have been grouped together, although it would be good to find a dimensionality reduction technique that is further able to separate them based on the different sounds made before the /iy/ sound.</p>
+<div id="fig-pca_plot" class="cell quarto-layout-panel">
+<figure class="figure">
+<div class="quarto-layout-row quarto-layout-valign-top">
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-pca_plot-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Big-Data-Assignment-2_files/figure-html/fig-pca_plot-1.png" class="img-fluid figure-img" data-ref-parent="fig-pca_plot" width="672"></p>
+<figcaption class="figure-caption">(a) All data - no labels</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display quarto-layout-cell quarto-layout-cell-subref" style="flex-basis: 50.0%;justify-content: center;">
+<div id="fig-pca_plot-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Big-Data-Assignment-2_files/figure-html/fig-pca_plot-2.png" class="img-fluid figure-img" data-ref-parent="fig-pca_plot" width="672"></p>
+<figcaption class="figure-caption">(b) 20% of data, with labels to visualise better</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p></p><figcaption class="figure-caption">Figure&nbsp;2: Classes plotted against first two principal components</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="isometric-mapping-isomap" class="level3">
+<h3 class="anchored" data-anchor-id="isometric-mapping-isomap">Isometric Mapping (Isomap)</h3>
+<p>Next we use the <a href="https://cran.r-project.org/web/packages/Rdimtools/index.html"><code>Rdimtools</code></a> implementation of Isomap, with <span class="math inline">\(k=10\)</span>, to reduce the training data down to two dimensions and plot the class labels against these two dimensions. This plot is shown in <a href="#fig-isomap">Figure&nbsp;3</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-isomap" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Big-Data-Assignment-2_files/figure-html/fig-isomap-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;3: Plot of classes against Isomap reduced dimensions</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The classes again tend to group into clusters when plotted on the reduced dimensions, with “M” and “N” found in the center of <strong>?@fig-lle</strong>, “X”, “F”, and “S” clustered together at the bottom right, and again the big group of /iy/ sounding letters clustered together on the left hand side of the plot. However it is not clear that this is an improvement on the results we obtained with PCA in <a href="#fig-pca_plot-2">Figure&nbsp;2 (b)</a>, there could however be some improvement with tuning the nearest neighbour parameter, <span class="math inline">\(k\)</span>, to trade off between preserving more local or global structure. Although it was a lot more computationally expensive to obtain the Isomap embedding compared to performing PCA, so any tuning of the <span class="math inline">\(k\)</span> parameter would likely have to be performed on a stratified sample of the data to reduce the computation to a reasonable length of time.</p>
+</section>
+<section id="uniform-manifold-approximation-and-projection-umap" class="level3">
+<h3 class="anchored" data-anchor-id="uniform-manifold-approximation-and-projection-umap">Uniform Manifold Approximation and Projection (UMAP)</h3>
+<p>Next we use the <a href="https://cran.r-project.org/web/packages/umap/"><code>umap</code></a> implementation of LLE, with default settings, to reduce the training data down to two dimensions and plot the class labels against these two dimensions. This plot is shown in <a href="#fig-umap">Figure&nbsp;4</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-umap" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Big-Data-Assignment-2_files/figure-html/fig-umap-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;4: Plot of classes against UMAP reduced dimensions</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>UMAP has done a much better job at finding an embedding which reduces the dimensionality of our data while seeming to retain key information that groups letters into their own clusters or clusters of similar sounding letters. One area which it has improved on both PCA and LLE is being able to distinguish “C” and “Z”, from the other /iy/ sounding letters like “B”, “P”, “T”, which intuitively makes sense as “C” and “Z” have a similar soft sound before the /iy/, whereas “B”, “P”, “T”, etc have a more abrupt sound before the /iy/. Similarly we see distinct clusters for letter pairs with similar sounds such as (“Q”, “U”), (“K”, “J”), (“S”, “F”), and (“M”, “N”), as well as some letters grouped by themselves such as “H”, “W”, “X”, “R”, and “O”.</p>
+<p>On this dataset, UMAP had a performance advantage over LLE, but was not as fast as PCA. Results for the execution time of each method are given in <a href="#tbl-times">Table&nbsp;1</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-times" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Table&nbsp;1: Comparison of execution time for PCA, LLE, and UMAP on training data</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">PCA</td>
+<td style="text-align: left;">2.2 secs</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Isomap</td>
+<td style="text-align: left;">2858.9 secs</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">UMAP</td>
+<td style="text-align: left;">31.8 secs</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="tuning-of-umap" class="level3">
+<h3 class="anchored" data-anchor-id="tuning-of-umap">Tuning of UMAP</h3>
+<p>Here we will demonstrate the effect that varying the value of <code>n_neighbours</code> has on the embedding that UMAP finds. <span class="citation" data-cites="mcinnes2020umap">McInnes, Healy, and Melville (<a href="#ref-mcinnes2020umap" role="doc-biblioref">2020</a>)</span>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-umap_k" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Big-Data-Assignment-2_files/figure-html/fig-umap_k-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;5: Effect of varying n_neighbours parameter on UMAP embedding</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="question-2-clustering" class="level2">
+<h2 class="anchored" data-anchor-id="question-2-clustering">Question 2: Clustering</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>nci.data <span class="ot">&lt;-</span> NCI60<span class="sc">$</span>data</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">scale</span>(<span class="fu">t</span>(nci.data))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>P <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(X)<span class="sc">$</span>x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># hierarchical clustering with complete linkage and euclidean distance</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>dist_mat <span class="ot">&lt;-</span> <span class="fu">dist</span>(X, <span class="at">method =</span> <span class="st">"euclidean"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>hclust_comp <span class="ot">&lt;-</span> <span class="fu">hclust</span>(dist_mat, <span class="at">method =</span> <span class="st">"complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n_clust <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>clustplot.list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># look at 3, 4, 5, and 6 clusters</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(n_clust)) {</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  cut <span class="ot">&lt;-</span> <span class="fu">cutree</span>(hclust_comp, <span class="at">k =</span> n_clust[i])</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  hclust_cut <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> P[, <span class="dv">1</span>], <span class="at">y =</span> P[, <span class="dv">2</span>], <span class="at">cluster =</span> <span class="fu">factor</span>(cut))</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(hclust_cut, <span class="fu">aes</span>(x, y, <span class="at">color =</span> cluster)) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>()</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  clustplot.list[[i]] <span class="ot">&lt;-</span> p</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(clustplot.list[[<span class="dv">1</span>]], clustplot.list[[<span class="dv">2</span>]], clustplot.list[[<span class="dv">3</span>]], </span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>             clustplot.list[[<span class="dv">4</span>]], <span class="at">ncol =</span> <span class="dv">2</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>             <span class="at">top =</span> <span class="fu">paste</span>(<span class="st">"Hierarchical clustering, complete linkage, "</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"euclidean distance"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Big-Data-Assignment-2_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compute (1 - corr) of matrix of (transposed) data and convert to a dist object</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>cor_mat <span class="ot">&lt;-</span> <span class="fu">as.dist</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fu">cor</span>(<span class="fu">t</span>(X)))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># agglomerative clustering</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>hclust_cor_complete <span class="ot">&lt;-</span> <span class="fu">hclust</span>(cor_mat, <span class="at">method =</span> <span class="st">"complete"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>clustplot_cor.list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(n_clust)) {</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  cor_cut <span class="ot">&lt;-</span> <span class="fu">cutree</span>(hclust_cor_complete, <span class="at">k =</span> n_clust[i])</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  hclust_cor_cut <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> P[, <span class="dv">1</span>], <span class="at">y =</span> P[, <span class="dv">2</span>], <span class="at">cluster =</span> <span class="fu">factor</span>(cor_cut))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(hclust_cor_cut, <span class="fu">aes</span>(x, y, <span class="at">color =</span> cluster)) <span class="sc">+</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>()</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  clustplot_cor.list[[i]] <span class="ot">&lt;-</span> p</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(clustplot_cor.list[[<span class="dv">1</span>]], clustplot_cor.list[[<span class="dv">2</span>]], </span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>             clustplot_cor.list[[<span class="dv">3</span>]], clustplot_cor.list[[<span class="dv">4</span>]], <span class="at">ncol =</span> <span class="dv">2</span>, </span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">top =</span> <span class="fu">paste</span>(<span class="st">"Hierarchical clustering, complete linkage, "</span>, </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"correlation-based distance"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Big-Data-Assignment-2_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>k_clustplot.list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(n_clust)) {</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  kmeans_clust <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(X, <span class="at">centers =</span> n_clust[i])</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  kmeans_dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> P[, <span class="dv">1</span>], <span class="at">y =</span> P[, <span class="dv">2</span>], </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">cluster =</span> <span class="fu">factor</span>(kmeans_clust<span class="sc">$</span>cluster))</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(kmeans_dat, <span class="fu">aes</span>(x, y, <span class="at">color =</span> cluster)) <span class="sc">+</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>()</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  k_clustplot.list[[i]] <span class="ot">&lt;-</span> p</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(k_clustplot.list[[<span class="dv">1</span>]], k_clustplot.list[[<span class="dv">2</span>]], </span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>             k_clustplot.list[[<span class="dv">3</span>]],  k_clustplot.list[[<span class="dv">4</span>]], <span class="at">ncol =</span> <span class="dv">2</span>, </span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">top =</span> <span class="st">"k-means clustering"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Big-Data-Assignment-2_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="question-3-regression" class="level2">
+<h2 class="anchored" data-anchor-id="question-3-regression">Question 3: Regression</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># [, -1] drops the Row ID variable</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>credit <span class="ot">&lt;-</span> Credit[, <span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># [, -1} drops intercept term as models automatically fit intercept</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(Balance <span class="sc">~</span> . <span class="sc">*</span> ., credit)[, <span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> credit<span class="sc">$</span>Balance</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(X), <span class="fu">nrow</span>(X)<span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># linear regression</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>linear.mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(y[train] <span class="sc">~</span> X[train, ])</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>linear.pred <span class="ot">&lt;-</span> <span class="fu">coef</span>(linear.mod)[<span class="dv">1</span>]<span class="sc">+</span>X[<span class="sc">-</span>train,] <span class="sc">%*%</span> <span class="fu">coef</span>(linear.mod)[<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>linear.test_mse <span class="ot">&lt;-</span> <span class="fu">mean</span>((y[<span class="sc">-</span>train] <span class="sc">-</span> linear.pred)<span class="sc">**</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">**</span><span class="fu">seq</span>(<span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>thresh <span class="ot">&lt;-</span> <span class="fl">1e-10</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>cv_ridge.out <span class="ot">&lt;-</span> <span class="fu">cv.glmnet</span>(X[train, ], y[train], <span class="at">alpha =</span> <span class="dv">0</span>, <span class="at">lambda =</span> grid, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">nfolds =</span> <span class="dv">10</span>, <span class="at">thresh =</span> thresh)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>ridge.pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(cv_ridge.out, <span class="at">s =</span> cv_ridge.out<span class="sc">$</span>lambda.min,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">newx =</span> X[<span class="sc">-</span>train, ])</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>ridge.test_mse <span class="ot">&lt;-</span> <span class="fu">mean</span>((y[<span class="sc">-</span>train] <span class="sc">-</span> ridge.pred)<span class="sc">**</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>cv_lasso.out <span class="ot">&lt;-</span> <span class="fu">cv.glmnet</span>(X[train, ], y[train], <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">lambda =</span> grid, </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">nfolds =</span> <span class="dv">10</span>, <span class="at">thresh =</span> thresh)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>lasso.pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(cv_lasso.out, <span class="at">s =</span> cv_lasso.out<span class="sc">$</span>lambda.min,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">newx =</span> X[<span class="sc">-</span>train, ])</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>lasso.test_mse <span class="ot">&lt;-</span> <span class="fu">mean</span>((y[<span class="sc">-</span>train] <span class="sc">-</span> lasso.pred)<span class="sc">**</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Including the intercept term, there are <span class="math inline">\(p=66\)</span> predictor terms.</p>
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-slr" class="csl-entry" role="listitem">
+Fanty, Mark, and Ronald Cole. 1990. <span>“Spoken Letter Recognition.”</span> In <em>NIPS</em>, 3:220–26. <a href="https://doi.org/10.3115/116580.116725">https://doi.org/10.3115/116580.116725</a>.
+</div>
+<div id="ref-mcinnes2020umap" class="csl-entry" role="listitem">
+McInnes, Leland, John Healy, and James Melville. 2020. <span>“UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction.”</span> <a href="https://arxiv.org/abs/1802.03426">https://arxiv.org/abs/1802.03426</a>.
+</div>
+</div></section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

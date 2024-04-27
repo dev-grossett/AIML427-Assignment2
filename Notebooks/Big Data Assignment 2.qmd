@@ -1,0 +1,395 @@
+---
+title: Big Data Assignment 2
+author: Devon Grossett
+bibliography: references.bib
+format: 
+  html:
+    fontsize: 11pt
+    # fig-pos: "H"
+# geometry:
+#   - left=0.75in
+#   - right=0.75in
+#   - top=0.75in
+#   - bottom=0.75in 
+---
+
+```{r}
+#| include: false
+library(tidyverse)
+library(gridExtra)
+library(umap)
+library(ISLR)
+library(glmnet)
+
+set.seed(100)
+```
+
+## Question 1: Manifold Learning
+
+For this question I have selected the [Isolet dataset](https://archive.ics.uci.edu/dataset/54/isolet) from the UCI Machine Learning Repository. It contains data from 150 subject who were recorded speaking each letter of the English alphabet twice, for a total of 7,797 observations (3 observations are missing). The purpose of this dataset is to train a model to classify recordings of speech by what letter of the alphabet is being said. The data has already been split into a training set of 6,238 observations (120 subjects) and a training set of 1,559 observations (30 subjects). I will limit my analysis to the training set.
+
+There are 617 features, the majority of the which (448) are discrete Fourier transform coefficients of different parts of the waveform corresponding to the different sonorant intervals (SON) of each letter. The other features are a variety of other wave measurements corresponding to different SON, such as zero-crossing rate, amplitude, and duration. Detailed information can be found in the paper by @slr.
+
+This dataset provides a highly dimensional problem with which to test different dimensionality reduction techniques, with applications to the real world. Voice recognition software is becoming more widespread with voice assistants such as Alexa and Siri, which rely on models to translate voice recordings into text that it can parse.
+
+```{r}
+#| label: Import data
+#| warning: false
+#| include: false
+
+isolet <- read_csv("../data/part1/isolet1+2+3+4.data", col_names = FALSE, 
+                   show_col_types = FALSE)
+
+# The final column is target class, 1-26, corresponding to the 26 letters of the
+# alphabet. Split into one dataset of features and one of target class
+isolet_features <- select(isolet, -one_of("X618"))
+isolet_target <- select(isolet, "X618") %>% 
+  rename(class = X618) %>% 
+  mutate(class = case_when(
+    class == 1 ~ "A",
+    class == 2 ~ "B",
+    class == 3 ~ "C",
+    class == 4 ~ "D",
+    class == 5 ~ "E",
+    class == 6 ~ "F",
+    class == 7 ~ "G",
+    class == 8 ~ "H",
+    class == 9 ~ "I",
+    class == 10 ~ "J",
+    class == 11 ~ "K",
+    class == 12 ~ "L",
+    class == 13 ~ "M",
+    class == 14 ~ "N",
+    class == 15 ~ "O",
+    class == 16 ~ "P",
+    class == 17 ~ "Q",
+    class == 18 ~ "R",
+    class == 19 ~ "S",
+    class == 20 ~ "T",
+    class == 21 ~ "U",
+    class == 22 ~ "V",
+    class == 23 ~ "W",
+    class == 24 ~ "X",
+    class == 25 ~ "Y",
+    class == 26 ~ "Z",
+    ))
+```
+
+### Principal Component Analysis (PCA)
+
+```{r}
+#| label: lst-pca
+#| include: false
+
+X <- scale(isolet_features)
+
+# time execution time for method comparison
+pca.start <- Sys.time()
+pc <- prcomp(X)
+pca.end <- Sys.time()
+
+# get transformed data and add back on target class
+P <- data.frame(pc$x) %>% 
+  mutate(class = as.factor(isolet_target$class))
+
+# percent of variance explained by PCs
+var_explained <- data.frame(pc = factor(paste0("PC", 1:(dim(X)[2])), 
+                                        levels = paste0("PC", 1:(dim(X)[2]))),
+  pct_var = pc$sdev**2 / sum(pc$sdev**2)) %>% 
+  mutate(cum_sum = cumsum(pct_var))
+```
+
+Here we have performed PCA on our training set. This is a linear technique that finds linear combinations of the original features that are uncorrelated and maximise the variance of the new principal components. As shown in @fig-var_explained-1, the first PC contains 19% of the variance of overall variance in our data, then 9% for the next PC. From @fig-var_explained-2, we can also see that cumulatively, half of the variance is explained by the first 8 PCs, although this tapers off and it isn't until the 112th PC has been added that 90% of the overall variance in our data is explained by its principal components.
+
+```{r}
+#| label: fig-var_explained
+#| fig-cap: Variance explained by successive principal components (up to first 30)
+#| fig-subcap: 
+#|   - "Individual %"
+#|   - "Cumulative %"
+#| layout-ncol: 2
+#| echo: false
+
+ggplot(var_explained %>% slice_head(n = 30), aes(x = pc, y = pct_var)) +
+  geom_bar(stat = "identity", alpha = 0.75) +
+  ylab("Variance Explained") +
+  xlab("Principal Component") + 
+  scale_y_continuous(labels = scales::percent) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+
+ggplot(var_explained %>% slice_head(n = 30), aes(x = pc, y = cum_sum)) +
+  geom_line(group = 1) +
+  geom_point() +
+  ylab("Variance Explained (Cumulative)") +
+  xlab("Principal Component") + 
+  scale_y_continuous(labels = scales::percent) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+```
+
+@fig-pca_plot plots the target classes against the first two PCs of the data. Due to the large number of classes, and the number of data points plotted, I also found it useful to take a stratified sample of 20% of the data to declutter the plot as well as using the letter to identify which class each plot point is. I will also do this when analyzing the other methods in this report to make the visualisations clearer.
+
+We do see some clusters of letters forming in @fig-pca_plot-2. In the bottom left, "R" has been quite well isolated, which I suspect is due to it having quite a unique sound when spoken. In contrast to this, on the right hand side of @fig-pca_plot-2, there is a mix of letters like "B", "C", "D", "E", "P", "T", and "Z" clustered together. These letters all share a common /iy/ sound on the end when spoken (like the "ee" in "fleece"), which explains why they have been grouped together, although it would be good to find a dimensionality reduction technique that is further able to separate them based on the different sounds made before the /iy/ sound.
+
+```{r}
+#| label: fig-pca_plot
+#| echo: false
+#| fig-cap: Classes plotted against first two principal components
+#| fig-subcap: 
+#|   - "All data - no labels"
+#|   - "20% of data, with labels to visualise better"
+#| layout-ncol: 2
+
+# create index of stratified sample of data
+pca_samp <- caret::createDataPartition(isolet_target$class, p = 0.2, 
+                                       list = FALSE)
+                                  
+ggplot(P, aes(PC1, PC2, color = class)) + 
+  geom_point()
+
+ggplot(P[pca_samp, ], aes(PC1, PC2, label = class, color = class)) + 
+  geom_text(size = 3, show.legend = FALSE)
+```
+
+### Isometric Mapping (Isomap)
+
+Next we use the [`Rdimtools`](https://cran.r-project.org/web/packages/Rdimtools/index.html) implementation of Isomap, with $k=10$, to reduce the training data down to two dimensions and plot the class labels against these two dimensions. This plot is shown in @fig-isomap.
+
+```{r}
+#| label: lst-isomap
+#| echo: false
+
+# use Rdimtools implementation of Isomap with KNN method and 10 as k selection
+# time execution time for method comparison
+isomap.start <- Sys.time()
+isolet.isomap <- Rdimtools::do.isomap(as.matrix(isolet_features), 
+                                      type = c("knn", 10))
+isomap.end <- Sys.time()
+
+# store results in data frame with class added back in
+isolet.isomap.data <- data.frame(x1 = isolet.isomap$Y[, 1], 
+                                 x2 = isolet.isomap$Y[, 2],
+                                 class = isolet_target$class)
+```
+
+```{r}
+#| label: fig-isomap
+#| fig-cap: Plot of classes against Isomap reduced dimensions
+#| echo: false
+
+isomap_samp <- caret::createDataPartition(isolet_target$class, p = 0.2, 
+                                          list = FALSE)
+
+# plot results, stratified sample
+ggplot(isolet.isomap.data[isomap_samp, ], 
+       aes(x = x1, y = x2, label = class, color = class)) +
+  geom_text(size = 3, show.legend = FALSE)
+```
+
+The classes again tend to group into clusters when plotted on the reduced dimensions, with "M" and "N" found in the center of @fig-isomap, "X", "F", and "S" clustered together at the bottom right, and again the big group of /iy/ sounding letters clustered together on the left hand side of the plot. However it is not clear that this is an improvement on the results we obtained with PCA in @fig-pca_plot-2, there could however be some improvement with tuning the nearest neighbour parameter, $k$, to trade off between preserving more local or global structure. Although it was a lot more computationally expensive to obtain the Isomap embedding compared to performing PCA, so any tuning of the $k$ parameter would likely have to be performed on a stratified sample of the data to reduce the computation to a reasonable length of time. 
+
+### Uniform Manifold Approximation and Projection (UMAP)
+
+Next we use the [`umap`](https://cran.r-project.org/web/packages/umap/) implementation of LLE, with default settings, to reduce the training data down to two dimensions and plot the class labels against these two dimensions. This plot is shown in @fig-umap.
+
+```{r}
+#| label: lst-umap
+#| echo: false
+
+# use umap implementation of UMAP with default settings
+# time execution time for method comparison
+umap.start <- Sys.time()
+isolet.umap <- umap(isolet_features)
+umap.end <- Sys.time()
+
+# store results in data frame with class added back in
+isolet.umap.data <- data.frame(x1 = isolet.umap$layout[, 1], 
+                               x2 = isolet.umap$layout[, 2], 
+                               class = isolet_target$class)
+```
+
+```{r}
+#| label: fig-umap
+#| fig-cap: Plot of classes against UMAP reduced dimensions
+#| echo: false
+
+umap_samp <- caret::createDataPartition(isolet_target$class, p = 0.1, 
+                                        list = FALSE)
+
+# plot results, stratified sample
+ggplot(isolet.umap.data[umap_samp, ], aes(x = x1, y = x2, label = class, color = class)) +
+  geom_text(size = 3, show.legend = FALSE)
+```
+
+UMAP has done a much better job at finding an embedding which reduces the dimensionality of our data while seeming to retain key information that groups letters into their own clusters or clusters of similar sounding letters. One area which it has improved on both PCA and Isomap is being able to distinguish "C" and "Z", from the other /iy/ sounding letters like "B", "P", "T", which intuitively makes sense as "C" and "Z" have a similar soft sound before the /iy/, whereas "B", "P", "T", etc have a more abrupt sound before the /iy/. Similarly we see distinct clusters for letter pairs with similar sounds such as ("Q", "U"), ("K", "J"), ("S", "F"), and ("M", "N"), as well as some letters grouped by themselves such as "H", "W", "X", "R", and "O".
+
+On this dataset, UMAP had a performance advantage over LLE, but was not as fast as PCA. Results for the execution time of each method are given in @tbl-times. 
+
+```{r}
+#| label: tbl-times
+#| tbl-cap: "Comparison of execution time for PCA, LLE, and UMAP on training data"
+#| echo: false
+
+times <- 
+  data.frame(Method = c("PCA", "Isomap", "UMAP"), 
+             Time = c(
+               round(difftime(pca.end, pca.start, units = "secs"), 1),
+               round(difftime(isomap.end, isomap.start, units = "secs"), 1),
+               round(difftime(umap.end, umap.start, units = "secs"), 1)))
+
+knitr::kable(times)
+```
+
+### Tuning of UMAP
+
+Here we will demonstrate the effect that varying the value of `n_neighbours` has on the embedding that UMAP finds. @mcinnes2020umap. 
+
+```{r}
+#| label: fig-umap_k
+#| fig-cap: Effect of varying n_neighbours parameter on UMAP embedding
+#| echo: false
+
+# values of nearest neighbour parameter to investigate
+k <- c(5, 15, 40, 80, 150, 500)
+plot.list <- list()
+samp <- caret::createDataPartition(isolet_target$class, p = 0.25, list = FALSE)
+
+for (i in 1:length(k)) {
+  do_umap <- umap(isolet_features[samp, ], n_neighbors = k[i])
+  umap_embedding <- data.frame(x1 = do_umap$layout[, 1], 
+                               x2 = do_umap$layout[, 2], 
+                               class = isolet_target[samp, ]$class)
+  
+  p <- ggplot(umap_embedding, 
+              aes(x = x1, y = x2, label = class, color = class)) + 
+    geom_text(size = 3, show.legend = FALSE) + 
+    ggtitle(paste("n_neighbors = ", k[i]))
+  
+  plot.list[[i]] = p
+}
+grid.arrange(plot.list[[1]], plot.list[[2]], plot.list[[3]], plot.list[[4]],
+             plot.list[[5]], plot.list[[5]], ncol = 3)
+```
+
+## Question 2: Clustering
+
+```{r}
+nci.data <- NCI60$data
+X <- scale(t(nci.data))
+P <- prcomp(X)$x
+```
+
+```{r}
+# hierarchical clustering with complete linkage and euclidean distance
+dist_mat <- dist(X, method = "euclidean")
+hclust_comp <- hclust(dist_mat, method = "complete")
+```
+
+```{r}
+n_clust <- c(3, 4, 5, 6)
+clustplot.list <- list()
+
+# look at 3, 4, 5, and 6 clusters
+for (i in 1:length(n_clust)) {
+  cut <- cutree(hclust_comp, k = n_clust[i])
+  hclust_cut <- data.frame(x = P[, 1], y = P[, 2], cluster = factor(cut))
+  p <- ggplot(hclust_cut, aes(x, y, color = cluster)) +
+    geom_point()
+  clustplot.list[[i]] <- p
+}
+
+grid.arrange(clustplot.list[[1]], clustplot.list[[2]], clustplot.list[[3]], 
+             clustplot.list[[4]], ncol = 2,
+             top = paste("Hierarchical clustering, complete linkage, ",
+                         "euclidean distance"))
+```
+
+
+```{r}
+# compute (1 - corr) of matrix of (transposed) data and convert to a dist object
+# 
+cor_mat <- as.dist(1 - cor(t(X)))
+
+# agglomerative clustering
+hclust_cor_complete <- hclust(cor_mat, method = "complete")
+
+clustplot_cor.list <- list()
+
+for (i in 1:length(n_clust)) {
+  cor_cut <- cutree(hclust_cor_complete, k = n_clust[i])
+  hclust_cor_cut <- data.frame(x = P[, 1], y = P[, 2], cluster = factor(cor_cut))
+  p <- ggplot(hclust_cor_cut, aes(x, y, color = cluster)) +
+    geom_point()
+  clustplot_cor.list[[i]] <- p
+}
+
+grid.arrange(clustplot_cor.list[[1]], clustplot_cor.list[[2]], 
+             clustplot_cor.list[[3]], clustplot_cor.list[[4]], ncol = 2, 
+             top = paste("Hierarchical clustering, complete linkage, ", 
+                         "correlation-based distance"))
+```
+
+```{r}
+k_clustplot.list <- list()
+
+for (i in 1:length(n_clust)) {
+  kmeans_clust <- kmeans(X, centers = n_clust[i])
+  kmeans_dat <- data.frame(x = P[, 1], y = P[, 2], 
+                           cluster = factor(kmeans_clust$cluster))
+  p <- ggplot(kmeans_dat, aes(x, y, color = cluster)) +
+    geom_point()
+  k_clustplot.list[[i]] <- p
+}
+
+grid.arrange(k_clustplot.list[[1]], k_clustplot.list[[2]], 
+             k_clustplot.list[[3]],  k_clustplot.list[[4]], ncol = 2, 
+             top = "k-means clustering")
+```
+
+## Question 3: Regression
+
+```{r}
+set.seed(42)
+# [, -1] drops the Row ID variable
+credit <- Credit[, -1]
+
+# [, -1} drops intercept term as models automatically fit intercept
+X <- model.matrix(Balance ~ . * ., credit)[, -1]
+y <- credit$Balance
+
+train <- sample(1:nrow(X), nrow(X)/2)
+```
+
+
+
+```{r}
+# linear regression
+linear.mod <- lm(y[train] ~ X[train, ])
+linear.pred <- coef(linear.mod)[1]+X[-train,] %*% coef(linear.mod)[-1]
+linear.test_mse <- mean((y[-train] - linear.pred)**2)
+```
+
+```{r}
+grid <- 10**seq(3, -1, length.out = 100)
+thresh <- 1e-10
+
+cv_ridge.out <- cv.glmnet(X[train, ], y[train], alpha = 0, lambda = grid, 
+                          nfolds = 10, thresh = thresh)
+ridge.pred <- predict(cv_ridge.out, s = cv_ridge.out$lambda.min,
+                      newx = X[-train, ])
+ridge.test_mse <- mean((y[-train] - ridge.pred)**2)
+
+```
+
+```{r}
+cv_lasso.out <- cv.glmnet(X[train, ], y[train], alpha = 1, lambda = grid, 
+                          nfolds = 10, thresh = thresh)
+lasso.pred <- predict(cv_lasso.out, s = cv_lasso.out$lambda.min,
+                      newx = X[-train, ])
+lasso.test_mse <- mean((y[-train] - lasso.pred)**2)
+```
+
+
+
+
+Including the intercept term, there are $p=66$ predictor terms. 
+
