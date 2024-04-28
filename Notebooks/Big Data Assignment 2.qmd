@@ -15,7 +15,9 @@ format:
 
 ```{r}
 #| include: false
-library(tidyverse)
+library(dplyr)
+library(readr)
+library(ggplot2)
 library(gridExtra)
 library(umap)
 library(ISLR)
@@ -37,8 +39,8 @@ This dataset provides a highly dimensional problem with which to test different 
 #| warning: false
 #| include: false
 
-isolet <- read_csv("../data/part1/isolet1+2+3+4.data", col_names = FALSE, 
-                   show_col_types = FALSE)
+isolet <- read_csv("../data/part1/isolet1+2+3+4.data", col_names=FALSE, 
+                   show_col_types=FALSE)
 
 # The final column is target class, 1-26, corresponding to the 26 letters of the
 # alphabet. Split into one dataset of features and one of target class
@@ -95,7 +97,7 @@ P <- data.frame(pc$x) %>%
 # percent of variance explained by PCs
 var_explained <- data.frame(pc = factor(paste0("PC", 1:(dim(X)[2])), 
                                         levels = paste0("PC", 1:(dim(X)[2]))),
-  pct_var = pc$sdev**2 / sum(pc$sdev**2)) %>% 
+                            pct_var = pc$sdev**2 / sum(pc$sdev**2)) %>% 
   mutate(cum_sum = cumsum(pct_var))
 ```
 
@@ -110,20 +112,20 @@ Here we have performed PCA on our training set. This is a linear technique that 
 #| layout-ncol: 2
 #| echo: false
 
-ggplot(var_explained %>% slice_head(n = 30), aes(x = pc, y = pct_var)) +
-  geom_bar(stat = "identity", alpha = 0.75) +
+ggplot(var_explained %>% slice_head(n=30), aes(x = pc, y = pct_var)) +
+  geom_bar(stat="identity", alpha=0.75) +
   ylab("Variance Explained") +
   xlab("Principal Component") + 
-  scale_y_continuous(labels = scales::percent) + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+  scale_y_continuous(labels=scales::percent) + 
+  theme(axis.text.x = element_text(angle=90, vjust=0.5))
 
-ggplot(var_explained %>% slice_head(n = 30), aes(x = pc, y = cum_sum)) +
-  geom_line(group = 1) +
+ggplot(var_explained %>% slice_head(n = 30), aes(x=pc, y=cum_sum)) +
+  geom_line(group=1) +
   geom_point() +
   ylab("Variance Explained (Cumulative)") +
   xlab("Principal Component") + 
-  scale_y_continuous(labels = scales::percent) + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+  scale_y_continuous(labels=scales::percent) + 
+  theme(axis.text.x = element_text(angle=90, vjust=0.5))
 ```
 
 @fig-pca_plot plots the target classes against the first two PCs of the data. Due to the large number of classes, and the number of data points plotted, I also found it useful to take a stratified sample of 20% of the data to declutter the plot as well as using the letter to identify which class each plot point is. I will also do this when analyzing the other methods in this report to make the visualisations clearer.
@@ -140,14 +142,13 @@ We do see some clusters of letters forming in @fig-pca_plot-2. In the bottom lef
 #| layout-ncol: 2
 
 # create index of stratified sample of data
-pca_samp <- caret::createDataPartition(isolet_target$class, p = 0.2, 
-                                       list = FALSE)
+pca_samp <- caret::createDataPartition(isolet_target$class, p=0.2, list=FALSE)
                                   
-ggplot(P, aes(PC1, PC2, color = class)) + 
+ggplot(P, aes(PC1, PC2, color=class)) + 
   geom_point()
 
-ggplot(P[pca_samp, ], aes(PC1, PC2, label = class, color = class)) + 
-  geom_text(size = 3, show.legend = FALSE)
+ggplot(P[pca_samp, ], aes(PC1, PC2, label=class, color=class)) + 
+  geom_text(size=3, show.legend=FALSE)
 ```
 
 ### Isometric Mapping (Isomap)
@@ -162,7 +163,7 @@ Next we use the [`Rdimtools`](https://cran.r-project.org/web/packages/Rdimtools/
 # time execution time for method comparison
 isomap.start <- Sys.time()
 isolet.isomap <- Rdimtools::do.isomap(as.matrix(isolet_features), 
-                                      type = c("knn", 10))
+                                      type=c("knn", 10))
 isomap.end <- Sys.time()
 
 # store results in data frame with class added back in
@@ -176,20 +177,20 @@ isolet.isomap.data <- data.frame(x1 = isolet.isomap$Y[, 1],
 #| fig-cap: Plot of classes against Isomap reduced dimensions
 #| echo: false
 
-isomap_samp <- caret::createDataPartition(isolet_target$class, p = 0.2, 
-                                          list = FALSE)
+isomap_samp <- caret::createDataPartition(isolet_target$class, p=0.2, 
+                                          list=FALSE)
 
 # plot results, stratified sample
 ggplot(isolet.isomap.data[isomap_samp, ], 
-       aes(x = x1, y = x2, label = class, color = class)) +
-  geom_text(size = 3, show.legend = FALSE)
+       aes(x=x1, y=x2, label=class, color=class)) +
+  geom_text(size=3, show.legend=FALSE)
 ```
 
-The classes again tend to group into clusters when plotted on the reduced dimensions, with "M" and "N" found in the center of @fig-isomap, "X", "F", and "S" clustered together at the bottom right, and again the big group of /iy/ sounding letters clustered together on the left hand side of the plot. However it is not clear that this is an improvement on the results we obtained with PCA in @fig-pca_plot-2, there could however be some improvement with tuning the nearest neighbour parameter, $k$, to trade off between preserving more local or global structure. Although it was a lot more computationally expensive to obtain the Isomap embedding compared to performing PCA, so any tuning of the $k$ parameter would likely have to be performed on a stratified sample of the data to reduce the computation to a reasonable length of time. 
+The classes again tend to group into clusters when plotted on the reduced dimensions, with "M" and "N" found in the center of @fig-isomap, "X", "F", and "S" clustered together at the bottom right, and again the big group of /iy/ sounding letters clustered together on the left hand side of the plot. However it is not clear that this is an improvement on the results we obtained with PCA in @fig-pca_plot-2, there could however be some improvement with tuning the nearest neighbour parameter, $k$, to trade off between preserving more local or global structure. Although it was a lot more computationally expensive to obtain the Isomap embedding compared to performing PCA, so any tuning of the $k$ parameter would likely have to be performed on a stratified sample of the data to reduce the computation to a reasonable length of time.
 
 ### Uniform Manifold Approximation and Projection (UMAP)
 
-Next we use the [`umap`](https://cran.r-project.org/web/packages/umap/) implementation of LLE, with default settings, to reduce the training data down to two dimensions and plot the class labels against these two dimensions. This plot is shown in @fig-umap.
+Next we use the [`umap`](https://cran.r-project.org/web/packages/umap/) implementation of UMAP, with default settings, to reduce the training data down to two dimensions and plot the class labels against these two dimensions. This plot is shown in @fig-umap.
 
 ```{r}
 #| label: lst-umap
@@ -212,17 +213,16 @@ isolet.umap.data <- data.frame(x1 = isolet.umap$layout[, 1],
 #| fig-cap: Plot of classes against UMAP reduced dimensions
 #| echo: false
 
-umap_samp <- caret::createDataPartition(isolet_target$class, p = 0.1, 
-                                        list = FALSE)
+umap_samp <- caret::createDataPartition(isolet_target$class, p=0.1, list=FALSE)
 
 # plot results, stratified sample
-ggplot(isolet.umap.data[umap_samp, ], aes(x = x1, y = x2, label = class, color = class)) +
-  geom_text(size = 3, show.legend = FALSE)
+ggplot(isolet.umap.data[umap_samp, ], aes(x=x1, y=x2, label=class, color=class)) +
+  geom_text(size=3, show.legend=FALSE)
 ```
 
 UMAP has done a much better job at finding an embedding which reduces the dimensionality of our data while seeming to retain key information that groups letters into their own clusters or clusters of similar sounding letters. One area which it has improved on both PCA and Isomap is being able to distinguish "C" and "Z", from the other /iy/ sounding letters like "B", "P", "T", which intuitively makes sense as "C" and "Z" have a similar soft sound before the /iy/, whereas "B", "P", "T", etc have a more abrupt sound before the /iy/. Similarly we see distinct clusters for letter pairs with similar sounds such as ("Q", "U"), ("K", "J"), ("S", "F"), and ("M", "N"), as well as some letters grouped by themselves such as "H", "W", "X", "R", and "O".
 
-On this dataset, UMAP had a performance advantage over LLE, but was not as fast as PCA. Results for the execution time of each method are given in @tbl-times. 
+Results for the execution time of each method are given in @tbl-times. On this dataset PCA had the fastest execution time, followed by UMAP with a still reasonable execution time. The `Rdimtools` implementation of Isomap performed very poorly on this dataset, taking a very long time. Even though the poor scaling with size is know to be a weakness of Isomap, this time difference is large and perhaps a more efficient implentation in R could be found.
 
 ```{r}
 #| label: tbl-times
@@ -232,16 +232,23 @@ On this dataset, UMAP had a performance advantage over LLE, but was not as fast 
 times <- 
   data.frame(Method = c("PCA", "Isomap", "UMAP"), 
              Time = c(
-               round(difftime(pca.end, pca.start, units = "secs"), 1),
-               round(difftime(isomap.end, isomap.start, units = "secs"), 1),
-               round(difftime(umap.end, umap.start, units = "secs"), 1)))
+               round(difftime(pca.end, pca.start, units="secs"), 1),
+               round(difftime(isomap.end, isomap.start, units="secs"), 1),
+               round(difftime(umap.end, umap.start, units="secs"), 1)))
 
 knitr::kable(times)
 ```
 
 ### Tuning of UMAP
 
-Here we will demonstrate the effect that varying the value of `n_neighbours` has on the embedding that UMAP finds. @mcinnes2020umap. 
+UMAP, as described by @mcinnes2020umap and in the documents for the python implementation (`umap-learn`)\[https://github.com/lmcinnes/umap\], has four main hyperparameters. These are:
+
+-   $n$, the number of neighbours to consider
+-   $d$, the target embedding dimension
+-   min-dist, the minimum distance apart that points are allowed to be in the low dimensional embedding
+-   metric, which defines how distance is computed e.g euclidean, manhattan
+
+We will test the effect of varying $n$ using values of 5, 15, 40, 80, 150, and 500. According to the documentation, $n$ affects whether we will get an embedding that focuses more on local structure (small values of $n$) or global structure (large values of $n$).
 
 ```{r}
 #| label: fig-umap_k
@@ -251,104 +258,249 @@ Here we will demonstrate the effect that varying the value of `n_neighbours` has
 # values of nearest neighbour parameter to investigate
 k <- c(5, 15, 40, 80, 150, 500)
 plot.list <- list()
-samp <- caret::createDataPartition(isolet_target$class, p = 0.25, list = FALSE)
+samp <- caret::createDataPartition(isolet_target$class, p=0.25, list=FALSE)
 
 for (i in 1:length(k)) {
-  do_umap <- umap(isolet_features[samp, ], n_neighbors = k[i])
+  do_umap <- umap(isolet_features[samp, ], n_neighbors=k[i])
   umap_embedding <- data.frame(x1 = do_umap$layout[, 1], 
                                x2 = do_umap$layout[, 2], 
                                class = isolet_target[samp, ]$class)
   
-  p <- ggplot(umap_embedding, 
-              aes(x = x1, y = x2, label = class, color = class)) + 
-    geom_text(size = 3, show.legend = FALSE) + 
+  p <- ggplot(umap_embedding, aes(x=x1, y=x2, label=class, color=class)) + 
+    geom_text(size=3, show.legend=FALSE) + 
     ggtitle(paste("n_neighbors = ", k[i]))
   
   plot.list[[i]] = p
 }
 grid.arrange(plot.list[[1]], plot.list[[2]], plot.list[[3]], plot.list[[4]],
-             plot.list[[5]], plot.list[[5]], ncol = 3)
+             plot.list[[5]], plot.list[[5]], ncol=3)
 ```
+
+From the results in @fig-umap_k, we can can see that for the smaller values of `n_neighbors` that there are certain letters that have been grouped by themselves but have no obvious links to other letters such as "W" in the top right of @fig-umap_k and "Y" in the bottom left. As the value of `n_neighbors` is increased UMAP does a better job at seeing the global structure of the data while still retaining local structure. As we increase `n_neighbors` even more, and more emphasis is placed on the global structure, some of the local structure is lost as can be seen by with certain data points no longer being close to those of the same grouping.
 
 ## Question 2: Clustering
 
+Prior to our clustering analysis we perform PCA on the NCI60 dataset. The first two principal components contain 21.1% of the variance of the overall variance of the dataset. We will plot any resulting clusters against these two principal components to be able to visualise the results in two dimensions.
+
 ```{r}
+#| label: lst-pca_nci60
+#| echo: false
+
+# load in the NCI60 data from the ISLR package
 nci.data <- NCI60$data
+
+# normalize the transposed dataframe and get the PCA transformed columns
 X <- scale(t(nci.data))
 P <- prcomp(X)$x
 ```
 
 ```{r}
+#| label: lst-hierarch_complete
+#| echo: false
+
 # hierarchical clustering with complete linkage and euclidean distance
-dist_mat <- dist(X, method = "euclidean")
-hclust_comp <- hclust(dist_mat, method = "complete")
+dist_mat <- dist(X, method="euclidean")
+hclust_comp <- hclust(dist_mat, method="complete")
 ```
 
+First we perform hierarchical clustering, with complete linkage and euclidean distance, on the dataset for three to six clusters. From @tbl-cluster1 we can see the size of the resulting clusters. For the first cut of the dendrogram which creates three clusters, we have one large cluster with 6,792 features, and two smaller clusters with only 35 and 3 features. The next cut that creates four clusters does so by splitting the cluster with 35 features into two clusters with 29 and 6 features. For five clusters, the large cluster of 6,792 features is split into one large cluster with 6,559 features and one smaller cluster with 233 features. Lastly, for six clusters, the cluster with 29 features is split into two clusters with 22 and 7 features.
+
+From this description we can see that how we obtain clusters in hierarchical clustering results in a nested structure, where the clustering obtained by cutting the dendrogram at a certain height is contained within the clustering obtained by cutting the dendrogram at a greater height.
+
 ```{r}
+#| label: lst-hierarch_complete
+#| echo: false
+
 n_clust <- c(3, 4, 5, 6)
 clustplot.list <- list()
+clust.counts <- data.frame(Cluster = seq(1, 6), Three=integer(6), 
+                           Four=integer(6), Five=integer(6), Six=integer(6))
 
-# look at 3, 4, 5, and 6 clusters
+# loop over 3, 4, 5, and 6 clusters store plot results
 for (i in 1:length(n_clust)) {
-  cut <- cutree(hclust_comp, k = n_clust[i])
+  # cut at specified number of clusters
+  cut <- cutree(hclust_comp, k=n_clust[i])
+  
+  # create data frame with first two PCs of data and cluster results
   hclust_cut <- data.frame(x = P[, 1], y = P[, 2], cluster = factor(cut))
-  p <- ggplot(hclust_cut, aes(x, y, color = cluster)) +
-    geom_point()
+  
+  # store results of plot 
+  p <- ggplot(hclust_cut, aes(x, y, color=cluster)) + geom_point(alpha = 0.5)
   clustplot.list[[i]] <- p
+  
+  # count number of observations in each cluster
+  for (j in 1:max(n_clust)) {
+    clust.counts[j, i + 1] <- nrow(hclust_cut[hclust_cut$cluster == j, ])
+  }
 }
-
-grid.arrange(clustplot.list[[1]], clustplot.list[[2]], clustplot.list[[3]], 
-             clustplot.list[[4]], ncol = 2,
-             top = paste("Hierarchical clustering, complete linkage, ",
-                         "euclidean distance"))
 ```
 
+```{r}
+#| label: tbl-cluster1
+#| tbl-cap:
+#|   - "Number of observations in each cluster for complete linkage and 
+#|   euclidean distance for three, four, five, and six clusters"
+#| echo: false
+
+knitr::kable(clust.counts, align="lrrrr",
+             col.names=c("Cluster ID", "Three Clusters", "Four Clusters", 
+                         "Five Clusters", "Six Clusters"))
+```
 
 ```{r}
+#| label: fig-hierarch_complete
+#| fig-cap: 
+#|   - "Hierarchical clustering of genes within the NCI60 dataset  with complete
+#|    linkage and euclidean distance, for three, four, five, and six clusters."
+#| echo: false
+
+grid.arrange(clustplot.list[[1]], clustplot.list[[2]], clustplot.list[[3]], 
+             clustplot.list[[4]], ncol=2)
+```
+
+@fig-hierarch_complete shows the resulting clusters plotted against the first two principal components of the data. As we can see, this method results in one main cluster and several smaller clusters. From this, we may be able to deduce that across the 64 different cancer cell lines in our dataset, the majority of genes show similar levels of expression
+
+```{r}
+#| label: lst-hierarch_corr
+#| echo: false
+
 # compute (1 - corr) of matrix of (transposed) data and convert to a dist object
 # 
 cor_mat <- as.dist(1 - cor(t(X)))
 
 # agglomerative clustering
-hclust_cor_complete <- hclust(cor_mat, method = "complete")
+hclust_cor_complete <- hclust(cor_mat, method="complete")
 
 clustplot_cor.list <- list()
+cor_clust.counts <- data.frame(Cluster=seq(1, 6), Three=integer(6), 
+                               Four=integer(6), Five=integer(6), Six=integer(6))
 
 for (i in 1:length(n_clust)) {
-  cor_cut <- cutree(hclust_cor_complete, k = n_clust[i])
-  hclust_cor_cut <- data.frame(x = P[, 1], y = P[, 2], cluster = factor(cor_cut))
-  p <- ggplot(hclust_cor_cut, aes(x, y, color = cluster)) +
-    geom_point()
-  clustplot_cor.list[[i]] <- p
+  # cut at specified number of clusters
+  cor_cut <- cutree(hclust_cor_complete, k=n_clust[i])
+  
+  # create data frame with first two PCs of data and cluster results
+  hclust_cor_cut <- data.frame(x=P[, 1], y=P[, 2], cluster=factor(cor_cut))
+  
+  # store results of plot 
+  p_cor <- ggplot(hclust_cor_cut, aes(x, y, color=cluster)) + geom_point(alpha = 0.5)
+  clustplot_cor.list[[i]] <- p_cor
+  
+  # count number of observations in each cluster
+  for (j in 1:max(n_clust)) {
+    cor_clust.counts[j, i + 1]  <-  
+      nrow(hclust_cor_cut[hclust_cor_cut$cluster == j, ])
+  }
 }
+```
 
-grid.arrange(clustplot_cor.list[[1]], clustplot_cor.list[[2]], 
-             clustplot_cor.list[[3]], clustplot_cor.list[[4]], ncol = 2, 
-             top = paste("Hierarchical clustering, complete linkage, ", 
-                         "correlation-based distance"))
+Now we repeat the same analysis, but instead of using the euclidean distance between two observations, $\mathbf{x}$ and $\mathbf{y}$, of $\sqrt{\sum_{i=1}^{n}(x_i-y_i)^2}$, we use a correlation based distance of $1 - \mbox{cor}(\mathbf{x}, \mathbf{y})$. We must take care to use the transpose of our data, as R's `cor` function calculates correlations between the columns of a matrix whereas we want the correlations between rows (i.e observations), for further details of the code see Appendix XX. By subtracting one, we turn the correlations into a measure of closeness that ranges from 0 (for perfectly positively correlated observations) to 2 (for perfectly negatively correlated observations).
+
+The resulting size of the clusters is given in @tbl-cluster1, and they are plotted against the first two principal components in @fig-hierarch_corr. Compared to the hierarchical clustering we have more evenly sized clusters
+
+```{r}
+#| label: tbl-cluster1
+#| tbl-cap:
+#|   - "Number of observations in each cluster for complete linkage and 
+#|   correlation based distance for three, four, five, and six clusters"
+#| echo: false
+
+knitr::kable(cor_clust.counts, align="lrrrr", 
+             col.names=c("Cluster ID", "Three Clusters", "Four Clusters", 
+                         "Five Clusters", "Six Clusters"))
 ```
 
 ```{r}
-k_clustplot.list <- list()
+#| label: fig-hierarch_corr
+#| fig-cap: 
+#|   - "Hierarchical clustering of genes within the NCI60 dataset  with complete
+#|    linkage and correlation based distance, for three, four, five, and six 
+#|    clusters."
+#| echo: false
 
+grid.arrange(clustplot_cor.list[[1]], clustplot_cor.list[[2]], 
+             clustplot_cor.list[[3]], clustplot_cor.list[[4]], ncol=2)
+```
+
+```{r}
+#| label: lst-kmeans
+#| echo: false
+
+k_clustplot.list <- list()
+k_clust.counts <- data.frame(Cluster=seq(1, 6), Three=integer(6), 
+                             Four=integer(6), Five=integer(6), Six=integer(6))
+
+# for k-means we will need to repeat the clustering for each k unlike 
+# hierarchical clustering
 for (i in 1:length(n_clust)) {
-  kmeans_clust <- kmeans(X, centers = n_clust[i])
-  kmeans_dat <- data.frame(x = P[, 1], y = P[, 2], 
-                           cluster = factor(kmeans_clust$cluster))
-  p <- ggplot(kmeans_dat, aes(x, y, color = cluster)) +
-    geom_point()
-  k_clustplot.list[[i]] <- p
+  # perform k-means clustering for each k
+  kmeans_clust <- kmeans(X, centers=n_clust[i])
+  
+  # create data frame with first two PCs of data and cluster results
+  kmeans_dat <- data.frame(x=P[, 1], y=P[, 2],
+                           cluster=factor(kmeans_clust$cluster))
+  
+  # store results of plot 
+  p_k <- ggplot(kmeans_dat, aes(x, y, color=cluster)) + geom_point()
+  k_clustplot.list[[i]] <- p_k
+  
+  # count number of observations in each cluster
+  for (j in 1:max(n_clust)) {
+    k_clust.counts[j, i + 1]  <-  
+      sum(kmeans_clust$cluster == j)
+  }
 }
+```
+
+Lastly we perform K-means clustering on the data, using the `kmeans` function in R, for three to six clusters. The size of the resulting clusters is given in @tbl-cluster2. Similar to the hierarchical clustering with correlation based distance, we get more evenly sized clusters.
+
+```{r}
+#| label: tbl-cluster2
+#| tbl-cap:
+#|   - "Number of observations in each cluster for K-means clustering for three,
+#|    four, five, and six clusters"
+#| echo: false
+
+knitr::kable(k_clust.counts, align="lrrrr", 
+             col.names=c("Cluster ID", "Three Clusters", "Four Clusters", 
+                         "Five Clusters", "Six Clusters"))
+```
+
+```{r}
+#| label: fig-kmeans
+#| fig-cap: 
+#|   - "K-means clustering of genes within the NCI60 dataset for three, four, 
+#|   five, and six clusters."
+#| echo: false
 
 grid.arrange(k_clustplot.list[[1]], k_clustplot.list[[2]], 
-             k_clustplot.list[[3]],  k_clustplot.list[[4]], ncol = 2, 
-             top = "k-means clustering")
+             k_clustplot.list[[3]],  k_clustplot.list[[4]], ncol=2)
 ```
 
 ## Question 3: Regression
 
+Firstly we are performing linear regression on the `Credit` dataset from the `ISLR` package, with `Balance` as the independent variable, and all pairwise interactions of the remaining 10 variables (excluding ID) as dependent variables. @tbl-credit shows the first 7 rows of the dataset, where we can see that we have 7 numeric variables (`Income`, `Limit`, `Rating`, `Cards`, `Age`, `Education`), three binary categorical variables (`Gender`, `Student`, `Married`), and one categorical variable with three levels (`Ethnicity`). Using dummy coding we will have 11 predictors relating to these 10 variables (`Ethnicity` will require two terms), with an additional 54 predictors from the pairwise interactions, and one for the intercept term. In total this gives up $p=66$ predictor terms. 
+
 ```{r}
+#| label: tbl-credit
+#| tbl-cap:
+#|   - "First six observations of the Credit dataset. The first 10 rows 
+#|   (excluding ID) are our dependent variables, and Balance is our independent 
+#|   variable"
+#| echo: false
+
+knitr::kable(head(Credit, n = 7L))
+```
+
+In order to generate the test and training datasets used in this analysis, we used `set.seed(42)` to control the rng and ensure our results are reproducible, and split the data into 50% training and 50% test using the code in @lst-model_matrix. We will train all of our regression models on the training set, and evaluate the performance on the test set using mean squared error (MSE). 
+
+
+```{r}
+#| label: lst-model_matrix
+#| echo: false
+
 set.seed(42)
+
 # [, -1] drops the Row ID variable
 credit <- Credit[, -1]
 
@@ -357,39 +509,50 @@ X <- model.matrix(Balance ~ . * ., credit)[, -1]
 y <- credit$Balance
 
 train <- sample(1:nrow(X), nrow(X)/2)
+test <- -train
 ```
 
-
-
 ```{r}
-# linear regression
+#| label: lst-lm
+#| echo: false
+
+# fit linear regression on training data
 linear.mod <- lm(y[train] ~ X[train, ])
-linear.pred <- coef(linear.mod)[1]+X[-train,] %*% coef(linear.mod)[-1]
-linear.test_mse <- mean((y[-train] - linear.pred)**2)
+# predictions on test data
+linear.pred <- coef(linear.mod)[1] + X[test, ] %*% coef(linear.mod)[-1]
+# compute test MSE
+linear.test_mse <- mean((y[test] - linear.pred)**2)
 ```
 
 ```{r}
-grid <- 10**seq(3, -1, length.out = 100)
+#| label: lst-ridge
+#| echo: false
+
+# grid to search for best lambda
+grid <- 10**seq(3, -1, length.out=100)
+
+# convergence criteria for descent algorithm
 thresh <- 1e-10
 
-cv_ridge.out <- cv.glmnet(X[train, ], y[train], alpha = 0, lambda = grid, 
-                          nfolds = 10, thresh = thresh)
-ridge.pred <- predict(cv_ridge.out, s = cv_ridge.out$lambda.min,
-                      newx = X[-train, ])
+# perform ridge regression, searching for best lambda using cross-validation
+cv_ridge.out <- cv.glmnet(X[train, ], y[train], alpha=0, lambda=grid, 
+                          nfolds=10, thresh=thresh)
+# predictions on test data
+ridge.pred <- predict(cv_ridge.out, s=cv_ridge.out$lambda.min, newx=X[-train, ])
+# compute test MSE
 ridge.test_mse <- mean((y[-train] - ridge.pred)**2)
 
 ```
 
 ```{r}
-cv_lasso.out <- cv.glmnet(X[train, ], y[train], alpha = 1, lambda = grid, 
-                          nfolds = 10, thresh = thresh)
-lasso.pred <- predict(cv_lasso.out, s = cv_lasso.out$lambda.min,
-                      newx = X[-train, ])
+#| label: lst-lasso
+#| echo: false
+
+# perform lasso regression, searching for best lambda using cross-validation
+cv_lasso.out <- cv.glmnet(X[train, ], y[train], alpha=1, lambda=grid, 
+                          nfolds=10, thresh=thresh)
+# predictions on test data
+lasso.pred <- predict(cv_lasso.out, s=cv_lasso.out$lambda.min, newx=X[-train, ])
+# compute test MSE
 lasso.test_mse <- mean((y[-train] - lasso.pred)**2)
 ```
-
-
-
-
-Including the intercept term, there are $p=66$ predictor terms. 
-
