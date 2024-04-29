@@ -321,6 +321,16 @@
       ],
       "Hash": "e8a22846fff485f0be3770c2da758713"
     },
+    "backports": {
+      "Package": "backports",
+      "Version": "1.4.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "c39fbec8a30d23e721980b8afb31984c"
+    },
     "base64enc": {
       "Package": "base64enc",
       "Version": "0.1-3",
@@ -330,6 +340,22 @@
         "R"
       ],
       "Hash": "543776ae6848fde2f48ff3816d0628bc"
+    },
+    "bayestestR": {
+      "Package": "bayestestR",
+      "Version": "0.13.2",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "datawizard",
+        "graphics",
+        "insight",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "4a6a2eebe2db1dfb1c792c4ed91e73dc"
     },
     "bit": {
       "Package": "bit",
@@ -411,6 +437,18 @@
         "withr"
       ],
       "Hash": "528692344d5a174552e3bf7acdfbaebd"
+    },
+    "checkmate": {
+      "Package": "checkmate",
+      "Version": "2.3.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "backports",
+        "utils"
+      ],
+      "Hash": "c01cab1cb0f9125211a6fc99d540e315"
     },
     "class": {
       "Package": "class",
@@ -521,14 +559,27 @@
     },
     "data.table": {
       "Package": "data.table",
-      "Version": "1.14.8",
+      "Version": "1.15.4",
       "Source": "Repository",
-      "Repository": "CRAN",
+      "Repository": "RSPM",
       "Requirements": [
         "R",
         "methods"
       ],
-      "Hash": "b4c06e554f33344e044ccd7fdca750a9"
+      "Hash": "8ee9ac56ef633d0c7cab8b2ca87d683e"
+    },
+    "datawizard": {
+      "Package": "datawizard",
+      "Version": "0.10.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "insight",
+        "stats",
+        "utils"
+      ],
+      "Hash": "62d6ec10346d3302a1299e1c54641d83"
     },
     "dbscan": {
       "Package": "dbscan",
@@ -947,6 +998,19 @@
       ],
       "Hash": "a865aa85bcb2697f47505bfd70422471"
     },
+    "insight": {
+      "Package": "insight",
+      "Version": "0.19.10",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "c15a38c9655cba66f5f5537a14c1bef4"
+    },
     "ipred": {
       "Package": "ipred",
       "Version": "0.9-14",
@@ -1209,6 +1273,26 @@
       "Repository": "CRAN",
       "Hash": "0d04497c6553720b3f1c2ae373c57aa9"
     },
+    "modelsummary": {
+      "Package": "modelsummary",
+      "Version": "2.0.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "checkmate",
+        "data.table",
+        "generics",
+        "glue",
+        "insight",
+        "methods",
+        "parameters",
+        "performance",
+        "tables",
+        "tinytable"
+      ],
+      "Hash": "07842f004976046de18163d667a1ad09"
+    },
     "munsell": {
       "Package": "munsell",
       "Version": "0.5.0",
@@ -1303,6 +1387,38 @@
         "utils"
       ],
       "Hash": "bca377e1c87ec89ebed77bba00635b2e"
+    },
+    "parameters": {
+      "Package": "parameters",
+      "Version": "0.21.6",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "bayestestR",
+        "datawizard",
+        "graphics",
+        "insight",
+        "methods",
+        "stats",
+        "utils"
+      ],
+      "Hash": "1f1bf75cb49c61df8287a0fa3b68126f"
+    },
+    "performance": {
+      "Package": "performance",
+      "Version": "0.11.0",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "bayestestR",
+        "datawizard",
+        "insight",
+        "stats",
+        "utils"
+      ],
+      "Hash": "eb8ecde248cd610ae3097f5d00718cbd"
     },
     "pillar": {
       "Package": "pillar",
@@ -1782,6 +1898,20 @@
       "Repository": "CRAN",
       "Hash": "34c16f1ef796057bfa06d3f4ff818a5d"
     },
+    "tables": {
+      "Package": "tables",
+      "Version": "0.9.25",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "htmltools",
+        "knitr",
+        "stats",
+        "utils"
+      ],
+      "Hash": "5540393ad9fed813e150fc4c7dfa08b8"
+    },
     "tibble": {
       "Package": "tibble",
       "Version": "3.2.1",
@@ -1864,6 +1994,17 @@
         "cpp11"
       ],
       "Hash": "8548b44f79a35ba1791308b61e6012d7"
+    },
+    "tinytable": {
+      "Package": "tinytable",
+      "Version": "0.2.1",
+      "Source": "Repository",
+      "Repository": "RSPM",
+      "Requirements": [
+        "R",
+        "methods"
+      ],
+      "Hash": "c26b47eef331be647a33bc028cb7da10"
     },
     "tinytex": {
       "Package": "tinytex",

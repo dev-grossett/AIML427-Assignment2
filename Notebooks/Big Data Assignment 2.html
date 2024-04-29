@@ -21,40 +21,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 /* CSS for citations */
 div.csl-bib-body { }
 div.csl-entry {
@@ -192,11 +158,11 @@ div.csl-indent {
 </div>
 </div>
 </div>
-<p>The classes again tend to group into clusters when plotted on the reduced dimensions, with “M” and “N” found in the center of <strong>?@fig-lle</strong>, “X”, “F”, and “S” clustered together at the bottom right, and again the big group of /iy/ sounding letters clustered together on the left hand side of the plot. However it is not clear that this is an improvement on the results we obtained with PCA in <a href="#fig-pca_plot-2">Figure&nbsp;2 (b)</a>, there could however be some improvement with tuning the nearest neighbour parameter, <span class="math inline">\(k\)</span>, to trade off between preserving more local or global structure. Although it was a lot more computationally expensive to obtain the Isomap embedding compared to performing PCA, so any tuning of the <span class="math inline">\(k\)</span> parameter would likely have to be performed on a stratified sample of the data to reduce the computation to a reasonable length of time.</p>
+<p>The classes again tend to group into clusters when plotted on the reduced dimensions, with “M” and “N” found in the center of <a href="#fig-isomap">Figure&nbsp;3</a>, “X”, “F”, and “S” clustered together at the bottom right, and again the big group of /iy/ sounding letters clustered together on the left hand side of the plot. However it is not clear that this is an improvement on the results we obtained with PCA in <a href="#fig-pca_plot-2">Figure&nbsp;2 (b)</a>, there could however be some improvement with tuning the nearest neighbour parameter, <span class="math inline">\(k\)</span>, to trade off between preserving more local or global structure. Although it was a lot more computationally expensive to obtain the Isomap embedding compared to performing PCA, so any tuning of the <span class="math inline">\(k\)</span> parameter would likely have to be performed on a stratified sample of the data to reduce the computation to a reasonable length of time.</p>
 </section>
 <section id="uniform-manifold-approximation-and-projection-umap" class="level3">
 <h3 class="anchored" data-anchor-id="uniform-manifold-approximation-and-projection-umap">Uniform Manifold Approximation and Projection (UMAP)</h3>
-<p>Next we use the <a href="https://cran.r-project.org/web/packages/umap/"><code>umap</code></a> implementation of LLE, with default settings, to reduce the training data down to two dimensions and plot the class labels against these two dimensions. This plot is shown in <a href="#fig-umap">Figure&nbsp;4</a>.</p>
+<p>Next we use the <a href="https://cran.r-project.org/web/packages/umap/"><code>umap</code></a> implementation of UMAP, with default settings, to reduce the training data down to two dimensions and plot the class labels against these two dimensions. This plot is shown in <a href="#fig-umap">Figure&nbsp;4</a>.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-umap" class="quarto-figure quarto-figure-center anchored">
@@ -207,8 +173,8 @@ div.csl-indent {
 </div>
 </div>
 </div>
-<p>UMAP has done a much better job at finding an embedding which reduces the dimensionality of our data while seeming to retain key information that groups letters into their own clusters or clusters of similar sounding letters. One area which it has improved on both PCA and LLE is being able to distinguish “C” and “Z”, from the other /iy/ sounding letters like “B”, “P”, “T”, which intuitively makes sense as “C” and “Z” have a similar soft sound before the /iy/, whereas “B”, “P”, “T”, etc have a more abrupt sound before the /iy/. Similarly we see distinct clusters for letter pairs with similar sounds such as (“Q”, “U”), (“K”, “J”), (“S”, “F”), and (“M”, “N”), as well as some letters grouped by themselves such as “H”, “W”, “X”, “R”, and “O”.</p>
-<p>On this dataset, UMAP had a performance advantage over LLE, but was not as fast as PCA. Results for the execution time of each method are given in <a href="#tbl-times">Table&nbsp;1</a>.</p>
+<p>UMAP has done a much better job at finding an embedding which reduces the dimensionality of our data while seeming to retain key information that groups letters into their own clusters or clusters of similar sounding letters. One area which it has improved on both PCA and Isomap is being able to distinguish “C” and “Z”, from the other /iy/ sounding letters like “B”, “P”, “T”, which intuitively makes sense as “C” and “Z” have a similar soft sound before the /iy/, whereas “B”, “P”, “T”, etc have a more abrupt sound before the /iy/. Similarly we see distinct clusters for letter pairs with similar sounds such as (“Q”, “U”), (“K”, “J”), (“S”, “F”), and (“M”, “N”), as well as some letters grouped by themselves such as “H”, “W”, “X”, “R”, and “O”.</p>
+<p>Results for the execution time of each method are given in <a href="#tbl-times">Table&nbsp;1</a>. On this dataset PCA had the fastest execution time, followed by UMAP with a still reasonable execution time. The <code>Rdimtools</code> implementation of Isomap performed very poorly on this dataset, taking a very long time. Even though the poor scaling with size is know to be a weakness of Isomap, this time difference is large and perhaps a more efficient implementation in R could be found.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="tbl-times" class="anchored">
@@ -223,15 +189,15 @@ div.csl-indent {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">PCA</td>
-<td style="text-align: left;">2.2 secs</td>
+<td style="text-align: left;">1.4 secs</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Isomap</td>
-<td style="text-align: left;">2858.9 secs</td>
+<td style="text-align: left;">2945.6 secs</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">UMAP</td>
-<td style="text-align: left;">31.8 secs</td>
+<td style="text-align: left;">37.0 secs</td>
 </tr>
 </tbody>
 </table>
@@ -241,7 +207,14 @@ div.csl-indent {
 </section>
 <section id="tuning-of-umap" class="level3">
 <h3 class="anchored" data-anchor-id="tuning-of-umap">Tuning of UMAP</h3>
-<p>Here we will demonstrate the effect that varying the value of <code>n_neighbours</code> has on the embedding that UMAP finds. <span class="citation" data-cites="mcinnes2020umap">McInnes, Healy, and Melville (<a href="#ref-mcinnes2020umap" role="doc-biblioref">2020</a>)</span>.</p>
+<p>UMAP, as described by <span class="citation" data-cites="mcinnes2020umap">McInnes, Healy, and Melville (<a href="#ref-mcinnes2020umap" role="doc-biblioref">2020</a>)</span> and in the documents for the python implementation (<code>umap-learn</code>)[https://github.com/lmcinnes/umap], has four main hyperparameters. These are:</p>
+<ul>
+<li><span class="math inline">\(n\)</span>, the number of neighbours to consider</li>
+<li><span class="math inline">\(d\)</span>, the target embedding dimension</li>
+<li>min-dist, the minimum distance apart that points are allowed to be in the low dimensional embedding</li>
+<li>metric, which defines how distance is computed e.g euclidean, manhattan</li>
+</ul>
+<p>We will test the effect of varying <span class="math inline">\(n\)</span> using values of 5, 15, 40, 80, 150, and 500. According to the documentation, <span class="math inline">\(n\)</span> affects whether we will get an embedding that focuses more on local structure (small values of <span class="math inline">\(n\)</span>) or global structure (large values of <span class="math inline">\(n\)</span>).</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-umap_k" class="quarto-figure quarto-figure-center anchored">
@@ -252,124 +225,1166 @@ div.csl-indent {
 </div>
 </div>
 </div>
+<p>From the results in <a href="#fig-umap_k">Figure&nbsp;5</a>, we can can see that for the smaller values of <code>n_neighbors</code> that there are certain letters that have been grouped by themselves but have no obvious links to other letters such as “W” in the top right of <a href="#fig-umap_k">Figure&nbsp;5</a> and “Y” in the bottom left. As the value of <code>n_neighbors</code> is increased UMAP does a better job at seeing the global structure of the data while still retaining local structure. As we increase <code>n_neighbors</code> even more, and more emphasis is placed on the global structure, some of the local structure is lost as can be seen by with certain data points no longer being close to those of the same grouping.</p>
 </section>
 </section>
 <section id="question-2-clustering" class="level2">
 <h2 class="anchored" data-anchor-id="question-2-clustering">Question 2: Clustering</h2>
+<p>Prior to our clustering analysis we perform PCA on the NCI60 dataset. The first two principal components contain 21.1% of the variance of the overall variance of the dataset. We will plot any resulting clusters against these two principal components to be able to visualise the results in two dimensions.</p>
+<p>First we perform hierarchical clustering, with complete linkage and euclidean distance, on the dataset for three to six clusters. From <a href="#tbl-cluster1">Table&nbsp;2</a> we can see the size of the resulting clusters. For the first cut of the dendrogram which creates three clusters, we have one large cluster with 6,792 features, and two smaller clusters with only 35 and 3 features. The next cut that creates four clusters does so by splitting the cluster with 35 features into two clusters with 29 and 6 features. For five clusters, the large cluster of 6,792 features is split into one large cluster with 6,559 features and one smaller cluster with 233 features. Lastly, for six clusters, the cluster with 29 features is split into two clusters with 22 and 7 features.</p>
+<p>From this description we can see that how we obtain clusters in hierarchical clustering results in a nested structure, where the clustering obtained by cutting the dendrogram at a certain height is contained within the clustering obtained by cutting the dendrogram at a greater height.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>nci.data <span class="ot">&lt;-</span> NCI60<span class="sc">$</span>data</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">scale</span>(<span class="fu">t</span>(nci.data))</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>P <span class="ot">&lt;-</span> <span class="fu">prcomp</span>(X)<span class="sc">$</span>x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># hierarchical clustering with complete linkage and euclidean distance</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>dist_mat <span class="ot">&lt;-</span> <span class="fu">dist</span>(X, <span class="at">method =</span> <span class="st">"euclidean"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>hclust_comp <span class="ot">&lt;-</span> <span class="fu">hclust</span>(dist_mat, <span class="at">method =</span> <span class="st">"complete"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n_clust <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>clustplot.list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># look at 3, 4, 5, and 6 clusters</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(n_clust)) {</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  cut <span class="ot">&lt;-</span> <span class="fu">cutree</span>(hclust_comp, <span class="at">k =</span> n_clust[i])</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  hclust_cut <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> P[, <span class="dv">1</span>], <span class="at">y =</span> P[, <span class="dv">2</span>], <span class="at">cluster =</span> <span class="fu">factor</span>(cut))</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(hclust_cut, <span class="fu">aes</span>(x, y, <span class="at">color =</span> cluster)) <span class="sc">+</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>()</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  clustplot.list[[i]] <span class="ot">&lt;-</span> p</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(clustplot.list[[<span class="dv">1</span>]], clustplot.list[[<span class="dv">2</span>]], clustplot.list[[<span class="dv">3</span>]], </span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>             clustplot.list[[<span class="dv">4</span>]], <span class="at">ncol =</span> <span class="dv">2</span>,</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>             <span class="at">top =</span> <span class="fu">paste</span>(<span class="st">"Hierarchical clustering, complete linkage, "</span>,</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"euclidean distance"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="Big-Data-Assignment-2_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+<div id="tbl-cluster1" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Table&nbsp;2: Number of observations in each cluster for complete linkage and euclidean distance for three, four, five, and six clusters</caption>
+<colgroup>
+<col style="width: 16%">
+<col style="width: 22%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Cluster ID</th>
+<th style="text-align: right;">Three Clusters</th>
+<th style="text-align: right;">Four Clusters</th>
+<th style="text-align: right;">Five Clusters</th>
+<th style="text-align: right;">Six Clusters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">6792</td>
+<td style="text-align: right;">6792</td>
+<td style="text-align: right;">6559</td>
+<td style="text-align: right;">6559</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">29</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">233</td>
+<td style="text-align: right;">233</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">22</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># compute (1 - corr) of matrix of (transposed) data and convert to a dist object</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>cor_mat <span class="ot">&lt;-</span> <span class="fu">as.dist</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fu">cor</span>(<span class="fu">t</span>(X)))</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># agglomerative clustering</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>hclust_cor_complete <span class="ot">&lt;-</span> <span class="fu">hclust</span>(cor_mat, <span class="at">method =</span> <span class="st">"complete"</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>clustplot_cor.list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(n_clust)) {</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  cor_cut <span class="ot">&lt;-</span> <span class="fu">cutree</span>(hclust_cor_complete, <span class="at">k =</span> n_clust[i])</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  hclust_cor_cut <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> P[, <span class="dv">1</span>], <span class="at">y =</span> P[, <span class="dv">2</span>], <span class="at">cluster =</span> <span class="fu">factor</span>(cor_cut))</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(hclust_cor_cut, <span class="fu">aes</span>(x, y, <span class="at">color =</span> cluster)) <span class="sc">+</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>()</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  clustplot_cor.list[[i]] <span class="ot">&lt;-</span> p</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(clustplot_cor.list[[<span class="dv">1</span>]], clustplot_cor.list[[<span class="dv">2</span>]], </span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>             clustplot_cor.list[[<span class="dv">3</span>]], clustplot_cor.list[[<span class="dv">4</span>]], <span class="at">ncol =</span> <span class="dv">2</span>, </span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">top =</span> <span class="fu">paste</span>(<span class="st">"Hierarchical clustering, complete linkage, "</span>, </span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"correlation-based distance"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="Big-Data-Assignment-2_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+<div id="fig-hierarch_complete" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Big-Data-Assignment-2_files/figure-html/fig-hierarch_complete-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;6: Hierarchical clustering of genes within the NCI60 dataset with complete linkage and euclidean distance, for three, four, five, and six clusters.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-hierarch_complete">Figure&nbsp;6</a> shows the resulting clusters plotted against the first two principal components of the data. As we can see, this method results in one main cluster and several smaller clusters. From this, we may be able to deduce that across the 64 different cancer cell lines in our dataset, the majority of genes show similar levels of expression</p>
+<p>Now we repeat the same analysis, but instead of using the euclidean distance between two observations, <span class="math inline">\(\mathbf{x}\)</span> and <span class="math inline">\(\mathbf{y}\)</span>, of <span class="math inline">\(\sqrt{\sum_{i=1}^{n}(x_i-y_i)^2}\)</span>, we use a correlation based distance of <span class="math inline">\(1 - \mbox{cor}(\mathbf{x}, \mathbf{y})\)</span>. We must take care to use the transpose of our data, as R’s <code>cor</code> function calculates correlations between the columns of a matrix whereas we want the correlations between rows (i.e observations), for further details of the code see Appendix XX. By subtracting one, we turn the correlations into a measure of closeness that ranges from 0 (for perfectly positively correlated observations) to 2 (for perfectly negatively correlated observations).</p>
+<p>The resulting size of the clusters is given in <a href="#tbl-cluster2">Table&nbsp;3</a>, and they are plotted against the first two principal components in <a href="#fig-hierarch_corr">Figure&nbsp;7</a>. Compared to the hierarchical clustering we have more evenly sized clusters</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-cluster2" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Table&nbsp;3: Number of observations in each cluster for complete linkage and correlation based distance for three, four, five, and six clusters</caption>
+<colgroup>
+<col style="width: 16%">
+<col style="width: 22%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Cluster ID</th>
+<th style="text-align: right;">Three Clusters</th>
+<th style="text-align: right;">Four Clusters</th>
+<th style="text-align: right;">Five Clusters</th>
+<th style="text-align: right;">Six Clusters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">1778</td>
+<td style="text-align: right;">1778</td>
+<td style="text-align: right;">1778</td>
+<td style="text-align: right;">1778</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">3991</td>
+<td style="text-align: right;">2656</td>
+<td style="text-align: right;">2656</td>
+<td style="text-align: right;">1566</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">1061</td>
+<td style="text-align: right;">1335</td>
+<td style="text-align: right;">1335</td>
+<td style="text-align: right;">1335</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1061</td>
+<td style="text-align: right;">385</td>
+<td style="text-align: right;">385</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">676</td>
+<td style="text-align: right;">1090</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">676</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>k_clustplot.list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(n_clust)) {</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  kmeans_clust <span class="ot">&lt;-</span> <span class="fu">kmeans</span>(X, <span class="at">centers =</span> n_clust[i])</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  kmeans_dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> P[, <span class="dv">1</span>], <span class="at">y =</span> P[, <span class="dv">2</span>], </span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">cluster =</span> <span class="fu">factor</span>(kmeans_clust<span class="sc">$</span>cluster))</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(kmeans_dat, <span class="fu">aes</span>(x, y, <span class="at">color =</span> cluster)) <span class="sc">+</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>()</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  k_clustplot.list[[i]] <span class="ot">&lt;-</span> p</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">grid.arrange</span>(k_clustplot.list[[<span class="dv">1</span>]], k_clustplot.list[[<span class="dv">2</span>]], </span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>             k_clustplot.list[[<span class="dv">3</span>]],  k_clustplot.list[[<span class="dv">4</span>]], <span class="at">ncol =</span> <span class="dv">2</span>, </span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">top =</span> <span class="st">"k-means clustering"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="Big-Data-Assignment-2_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+<div id="fig-hierarch_corr" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Big-Data-Assignment-2_files/figure-html/fig-hierarch_corr-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;7: Hierarchical clustering of genes within the NCI60 dataset with complete linkage and correlation based distance, for three, four, five, and six clusters.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Lastly we perform K-means clustering on the data, using the <code>kmeans</code> function in R, for three to six clusters. The size of the resulting clusters is given in <a href="#tbl-cluster3">Table&nbsp;4</a>. Similar to the hierarchical clustering with correlation based distance, we get more evenly sized clusters.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-cluster3" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Table&nbsp;4: Number of observations in each cluster for K-means clustering for three, four, five, and six clusters</caption>
+<colgroup>
+<col style="width: 16%">
+<col style="width: 22%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Cluster ID</th>
+<th style="text-align: right;">Three Clusters</th>
+<th style="text-align: right;">Four Clusters</th>
+<th style="text-align: right;">Five Clusters</th>
+<th style="text-align: right;">Six Clusters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">749</td>
+<td style="text-align: right;">1063</td>
+<td style="text-align: right;">1856</td>
+<td style="text-align: right;">1985</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">1514</td>
+<td style="text-align: right;">327</td>
+<td style="text-align: right;">533</td>
+<td style="text-align: right;">336</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">4567</td>
+<td style="text-align: right;">697</td>
+<td style="text-align: right;">3766</td>
+<td style="text-align: right;">297</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4743</td>
+<td style="text-align: right;">283</td>
+<td style="text-align: right;">2689</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">392</td>
+<td style="text-align: right;">1273</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">250</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-kmeans" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="Big-Data-Assignment-2_files/figure-html/fig-kmeans-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;8: K-means clustering of genes within the NCI60 dataset for three, four, five, and six clusters.</figcaption>
+</figure>
+</div>
 </div>
 </div>
 </section>
 <section id="question-3-regression" class="level2">
 <h2 class="anchored" data-anchor-id="question-3-regression">Question 3: Regression</h2>
+<p>Firstly we are performing linear regression on the <code>Credit</code> dataset from the <code>ISLR</code> package, with <code>Balance</code> as the independent variable, and all pairwise interactions of the remaining 10 variables (excluding ID) as dependent variables. <a href="#tbl-credit">Table&nbsp;5</a> shows the first 7 rows of the dataset, where we can see that we have 7 numeric variables (<code>Income</code>, <code>Limit</code>, <code>Rating</code>, <code>Cards</code>, <code>Age</code>, <code>Education</code>), three binary categorical variables (<code>Gender</code>, <code>Student</code>, <code>Married</code>), and one categorical variable with three levels (<code>Ethnicity</code>). Using dummy coding we will have 11 predictors relating to these 10 variables (<code>Ethnicity</code> will require two terms), with an additional 54 predictors from the pairwise interactions, and one for the intercept term. In total this gives up <span class="math inline">\(p=66\)</span> predictor terms.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># [, -1] drops the Row ID variable</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>credit <span class="ot">&lt;-</span> Credit[, <span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># [, -1} drops intercept term as models automatically fit intercept</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(Balance <span class="sc">~</span> . <span class="sc">*</span> ., credit)[, <span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> credit<span class="sc">$</span>Balance</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(X), <span class="fu">nrow</span>(X)<span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="tbl-credit" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Table&nbsp;5: First six observations of the Credit dataset. The first 10 rows (excluding ID) are our dependent variables, and Balance is our independent variable</caption>
+<colgroup>
+<col style="width: 3%">
+<col style="width: 8%">
+<col style="width: 6%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 4%">
+<col style="width: 10%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 18%">
+<col style="width: 8%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">ID</th>
+<th style="text-align: right;">Income</th>
+<th style="text-align: right;">Limit</th>
+<th style="text-align: right;">Rating</th>
+<th style="text-align: right;">Cards</th>
+<th style="text-align: right;">Age</th>
+<th style="text-align: right;">Education</th>
+<th style="text-align: left;">Gender</th>
+<th style="text-align: left;">Student</th>
+<th style="text-align: left;">Married</th>
+<th style="text-align: left;">Ethnicity</th>
+<th style="text-align: right;">Balance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">14.891</td>
+<td style="text-align: right;">3606</td>
+<td style="text-align: right;">283</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: left;">Male</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Caucasian</td>
+<td style="text-align: right;">333</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">106.025</td>
+<td style="text-align: right;">6645</td>
+<td style="text-align: right;">483</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">Female</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Asian</td>
+<td style="text-align: right;">903</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">104.593</td>
+<td style="text-align: right;">7075</td>
+<td style="text-align: right;">514</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">71</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: left;">Male</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Asian</td>
+<td style="text-align: right;">580</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">148.924</td>
+<td style="text-align: right;">9504</td>
+<td style="text-align: right;">681</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: left;">Female</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Asian</td>
+<td style="text-align: right;">964</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">55.882</td>
+<td style="text-align: right;">4897</td>
+<td style="text-align: right;">357</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">68</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: left;">Male</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Caucasian</td>
+<td style="text-align: right;">331</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">80.180</td>
+<td style="text-align: right;">8047</td>
+<td style="text-align: right;">569</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">Male</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Caucasian</td>
+<td style="text-align: right;">1151</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">20.996</td>
+<td style="text-align: right;">3388</td>
+<td style="text-align: right;">259</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">37</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">Female</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">African American</td>
+<td style="text-align: right;">203</td>
+</tr>
+</tbody>
+</table>
 </div>
+</div>
+</div>
+<p>In order to generate the test and training datasets used in this analysis, we used <code>set.seed(42)</code> to control the rng and ensure our results are reproducible, and split the data into 50% training and 50% test using the code in <strong>?@lst-model_matrix</strong>. We will train all of our regression models on the training set, and evaluate the performance on the test set using mean squared error (MSE).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># linear regression</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>linear.mod <span class="ot">&lt;-</span> <span class="fu">lm</span>(y[train] <span class="sc">~</span> X[train, ])</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>linear.pred <span class="ot">&lt;-</span> <span class="fu">coef</span>(linear.mod)[<span class="dv">1</span>]<span class="sc">+</span>X[<span class="sc">-</span>train,] <span class="sc">%*%</span> <span class="fu">coef</span>(linear.mod)[<span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>linear.test_mse <span class="ot">&lt;-</span> <span class="fu">mean</span>((y[<span class="sc">-</span>train] <span class="sc">-</span> linear.pred)<span class="sc">**</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="tbl-modelsumm" class="anchored">
+
+ 
+
+  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tinytable_lotkk59n6db9o1yxquqf</title>
+    <style>
+.table td.tinytable_css_znkjawdrwszvl64uvhct, .table th.tinytable_css_znkjawdrwszvl64uvhct {    border-bottom: solid 0.1em #d3d8dc; }
+.table td.tinytable_css_8a5u4d09bl0324jxmzj8, .table th.tinytable_css_8a5u4d09bl0324jxmzj8 {    text-align: left; }
+.table td.tinytable_css_q2uh9wj5s3q8mpb9mqxf, .table th.tinytable_css_q2uh9wj5s3q8mpb9mqxf {    text-align: center; }
+.table td.tinytable_css_oremi9c0ap9eg7z59qjo, .table th.tinytable_css_oremi9c0ap9eg7z59qjo {    text-align: center; }
+.table td.tinytable_css_nff2vk29k6isnstyxkpw, .table th.tinytable_css_nff2vk29k6isnstyxkpw {    text-align: center; }
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+    </script>
+  
+
+  
+    <div class="container">
+      <table class="table table-borderless" id="tinytable_lotkk59n6db9o1yxquqf" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true"><caption>Table&nbsp;6:  <p>Model coefficients from the three regression models</p> </caption>
+        <thead>
+        
+              <tr>
+                <th scope="col"> </th>
+                <th scope="col">Linear Regression</th>
+                <th scope="col">Ridge Regression</th>
+                <th scope="col">Lasso Regression</th>
+              </tr>
+        </thead>
+        
+        <tbody>
+                <tr>
+                  <td>(Intercept)                      </td>
+                  <td>-220.8030</td>
+                  <td>-242.2117</td>
+                  <td>-270.8381</td>
+                </tr>
+                <tr>
+                  <td>Income                           </td>
+                  <td>-1.4417  </td>
+                  <td>-3.0083  </td>
+                  <td>-2.2527  </td>
+                </tr>
+                <tr>
+                  <td>Limit                            </td>
+                  <td>0.1196   </td>
+                  <td>0.0765   </td>
+                  <td>0.1066   </td>
+                </tr>
+                <tr>
+                  <td>Rating                           </td>
+                  <td>-0.0984  </td>
+                  <td>0.7145   </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Cards                            </td>
+                  <td>17.9424  </td>
+                  <td>15.0788  </td>
+                  <td>18.4524  </td>
+                </tr>
+                <tr>
+                  <td>Age                              </td>
+                  <td>0.8634   </td>
+                  <td>0.6954   </td>
+                  <td>0.3691   </td>
+                </tr>
+                <tr>
+                  <td>Education                        </td>
+                  <td>-10.1770 </td>
+                  <td>-7.4393  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>GenderFemale                     </td>
+                  <td>-58.2972 </td>
+                  <td>-59.2802 </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>StudentYes                       </td>
+                  <td>65.0863  </td>
+                  <td>85.0547  </td>
+                  <td>16.9320  </td>
+                </tr>
+                <tr>
+                  <td>MarriedYes                       </td>
+                  <td>66.0225  </td>
+                  <td>62.9968  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>EthnicityAsian                   </td>
+                  <td>-46.9345 </td>
+                  <td>-79.0408 </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>EthnicityCaucasian               </td>
+                  <td>-84.5261 </td>
+                  <td>-58.9311 </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Income × Limit                   </td>
+                  <td>0.0006   </td>
+                  <td>-0.0004  </td>
+                  <td>-0.0007  </td>
+                </tr>
+                <tr>
+                  <td>Income × Rating                  </td>
+                  <td>-0.0260  </td>
+                  <td>-0.0054  </td>
+                  <td>-0.0019  </td>
+                </tr>
+                <tr>
+                  <td>Income × Cards                   </td>
+                  <td>-0.0981  </td>
+                  <td>-0.1630  </td>
+                  <td>-0.2095  </td>
+                </tr>
+                <tr>
+                  <td>Income × Age                     </td>
+                  <td>0.0288   </td>
+                  <td>0.0047   </td>
+                  <td>-0.0231  </td>
+                </tr>
+                <tr>
+                  <td>Income × Education               </td>
+                  <td>-0.1253  </td>
+                  <td>-0.0828  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Income × GenderFemale            </td>
+                  <td>-0.5591  </td>
+                  <td>-0.6195  </td>
+                  <td>-0.0425  </td>
+                </tr>
+                <tr>
+                  <td>Income × StudentYes              </td>
+                  <td>-1.0977  </td>
+                  <td>-1.0807  </td>
+                  <td>-0.9977  </td>
+                </tr>
+                <tr>
+                  <td>Income × MarriedYes              </td>
+                  <td>-0.1370  </td>
+                  <td>0.0018   </td>
+                  <td>-0.0769  </td>
+                </tr>
+                <tr>
+                  <td>Income × EthnicityAsian          </td>
+                  <td>0.1397   </td>
+                  <td>-0.2447  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Income × EthnicityCaucasian      </td>
+                  <td>0.8006   </td>
+                  <td>0.1735   </td>
+                  <td>-0.1359  </td>
+                </tr>
+                <tr>
+                  <td>Limit × Rating                   </td>
+                  <td>0.0004   </td>
+                  <td>0.0003   </td>
+                  <td>0.0003   </td>
+                </tr>
+                <tr>
+                  <td>Limit × Cards                    </td>
+                  <td>0.0087   </td>
+                  <td>0.0067   </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Limit × Age                      </td>
+                  <td>0.0000   </td>
+                  <td>-0.0001  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Limit × Education                </td>
+                  <td>-0.0120  </td>
+                  <td>0.0014   </td>
+                  <td>0.0000   </td>
+                </tr>
+                <tr>
+                  <td>Limit × GenderFemale             </td>
+                  <td>0.0320   </td>
+                  <td>0.0135   </td>
+                  <td>0.0010   </td>
+                </tr>
+                <tr>
+                  <td>Limit × StudentYes               </td>
+                  <td>0.1338   </td>
+                  <td>0.0480   </td>
+                  <td>0.0745   </td>
+                </tr>
+                <tr>
+                  <td>Limit × MarriedYes               </td>
+                  <td>0.0008   </td>
+                  <td>-0.0005  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Limit × EthnicityAsian           </td>
+                  <td>0.1728   </td>
+                  <td>0.0141   </td>
+                  <td>0.0046   </td>
+                </tr>
+                <tr>
+                  <td>Limit × EthnicityCaucasian       </td>
+                  <td>0.0737   </td>
+                  <td>0.0008   </td>
+                  <td>0.0000   </td>
+                </tr>
+                <tr>
+                  <td>Rating × Cards                   </td>
+                  <td>-0.1396  </td>
+                  <td>-0.1018  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Rating × Age                     </td>
+                  <td>-0.0146  </td>
+                  <td>-0.0084  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Rating × Education               </td>
+                  <td>0.1969   </td>
+                  <td>0.0054   </td>
+                  <td>0.0015   </td>
+                </tr>
+                <tr>
+                  <td>Rating × GenderFemale            </td>
+                  <td>-0.3330  </td>
+                  <td>-0.0573  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Rating × StudentYes              </td>
+                  <td>-0.8490  </td>
+                  <td>0.3559   </td>
+                  <td>0.0008   </td>
+                </tr>
+                <tr>
+                  <td>Rating × MarriedYes              </td>
+                  <td>-0.0807  </td>
+                  <td>-0.0371  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Rating × EthnicityAsian          </td>
+                  <td>-2.5300  </td>
+                  <td>-0.0790  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Rating × EthnicityCaucasian      </td>
+                  <td>-1.2744  </td>
+                  <td>-0.1017  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Cards × Age                      </td>
+                  <td>0.0941   </td>
+                  <td>0.1101   </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Cards × Education                </td>
+                  <td>-1.1528  </td>
+                  <td>-0.3560  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Cards × GenderFemale             </td>
+                  <td>12.0399  </td>
+                  <td>10.1407  </td>
+                  <td>7.5466   </td>
+                </tr>
+                <tr>
+                  <td>Cards × StudentYes               </td>
+                  <td>2.5331   </td>
+                  <td>-3.3248  </td>
+                  <td>6.7376   </td>
+                </tr>
+                <tr>
+                  <td>Cards × MarriedYes               </td>
+                  <td>-2.5928  </td>
+                  <td>-4.3142  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Cards × EthnicityAsian           </td>
+                  <td>29.0547  </td>
+                  <td>12.5316  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Cards × EthnicityCaucasian       </td>
+                  <td>27.5689  </td>
+                  <td>16.8946  </td>
+                  <td>10.0049  </td>
+                </tr>
+                <tr>
+                  <td>Age × Education                  </td>
+                  <td>0.0802   </td>
+                  <td>0.0718   </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Age × GenderFemale               </td>
+                  <td>0.6221   </td>
+                  <td>0.4992   </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Age × StudentYes                 </td>
+                  <td>-1.3396  </td>
+                  <td>-1.1097  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Age × MarriedYes                 </td>
+                  <td>0.4306   </td>
+                  <td>0.1704   </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Age × EthnicityAsian             </td>
+                  <td>0.6581   </td>
+                  <td>0.5464   </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Age × EthnicityCaucasian         </td>
+                  <td>0.1176   </td>
+                  <td>0.2352   </td>
+                  <td>0.0382   </td>
+                </tr>
+                <tr>
+                  <td>Education × GenderFemale         </td>
+                  <td>-4.6820  </td>
+                  <td>-4.3741  </td>
+                  <td>-3.7254  </td>
+                </tr>
+                <tr>
+                  <td>Education × StudentYes           </td>
+                  <td>5.2620   </td>
+                  <td>4.7980   </td>
+                  <td>5.7730   </td>
+                </tr>
+                <tr>
+                  <td>Education × MarriedYes           </td>
+                  <td>-2.7136  </td>
+                  <td>-2.5230  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Education × EthnicityAsian       </td>
+                  <td>-0.0259  </td>
+                  <td>-0.1180  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>Education × EthnicityCaucasian   </td>
+                  <td>5.1960   </td>
+                  <td>3.1624   </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>GenderFemale × StudentYes        </td>
+                  <td>-8.8828  </td>
+                  <td>-9.2673  </td>
+                  <td>4.3887   </td>
+                </tr>
+                <tr>
+                  <td>GenderFemale × MarriedYes        </td>
+                  <td>-6.5321  </td>
+                  <td>10.7694  </td>
+                  <td>8.3773   </td>
+                </tr>
+                <tr>
+                  <td>GenderFemale × EthnicityAsian    </td>
+                  <td>67.3341  </td>
+                  <td>43.1462  </td>
+                  <td>14.8415  </td>
+                </tr>
+                <tr>
+                  <td>GenderFemale × EthnicityCaucasian</td>
+                  <td>54.0872  </td>
+                  <td>35.4796  </td>
+                  <td>10.7716  </td>
+                </tr>
+                <tr>
+                  <td>StudentYes × MarriedYes          </td>
+                  <td>40.5759  </td>
+                  <td>13.1585  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>StudentYes × EthnicityAsian      </td>
+                  <td>100.9584 </td>
+                  <td>73.4320  </td>
+                  <td>27.8207  </td>
+                </tr>
+                <tr>
+                  <td>StudentYes × EthnicityCaucasian  </td>
+                  <td>67.6588  </td>
+                  <td>52.6026  </td>
+                  <td>         </td>
+                </tr>
+                <tr>
+                  <td>MarriedYes × EthnicityAsian      </td>
+                  <td>-33.1516 </td>
+                  <td>-28.5529 </td>
+                  <td>-12.9988 </td>
+                </tr>
+                <tr>
+                  <td>MarriedYes × EthnicityCaucasian  </td>
+                  <td>-17.7494 </td>
+                  <td>-28.6837 </td>
+                  <td>-9.7156  </td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      function styleCell_tinytable_resjofnwlpjekxo0darh(i, j, css_id) {
+        var table = document.getElementById("tinytable_lotkk59n6db9o1yxquqf");
+        table.rows[i].cells[j].classList.add(css_id);
+      }
+      function insertSpanRow(i, colspan, content) {
+        var table = document.getElementById('tinytable_lotkk59n6db9o1yxquqf');
+        var newRow = table.insertRow(i);
+        var newCell = newRow.insertCell(0);
+        newCell.setAttribute("colspan", colspan);
+        // newCell.innerText = content;
+        // this may be unsafe, but innerText does not interpret <br>
+        newCell.innerHTML = content;
+      }
+      function spanCell_tinytable_resjofnwlpjekxo0darh(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_lotkk59n6db9o1yxquqf");
+        const targetRow = table.rows[i];
+        const targetCell = targetRow.cells[j];
+        for (let r = 0; r < rowspan; r++) {
+          // Only start deleting cells to the right for the first row (r == 0)
+          if (r === 0) {
+            // Delete cells to the right of the target cell in the first row
+            for (let c = colspan - 1; c > 0; c--) {
+              if (table.rows[i + r].cells[j + c]) {
+                table.rows[i + r].deleteCell(j + c);
+              }
+            }
+          }
+          // For rows below the first, delete starting from the target column
+          if (r > 0) {
+            for (let c = colspan - 1; c >= 0; c--) {
+              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
+                table.rows[i + r].deleteCell(j);
+              }
+            }
+          }
+        }
+        // Set rowspan and colspan of the target cell
+        targetCell.rowSpan = rowspan;
+        targetCell.colSpan = colspan;
+      }
+
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(0, 0, 'tinytable_css_znkjawdrwszvl64uvhct') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(0, 1, 'tinytable_css_znkjawdrwszvl64uvhct') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(0, 2, 'tinytable_css_znkjawdrwszvl64uvhct') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(0, 3, 'tinytable_css_znkjawdrwszvl64uvhct') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(0, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(1, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(2, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(3, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(4, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(5, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(6, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(7, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(8, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(9, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(10, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(11, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(12, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(13, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(14, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(15, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(16, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(17, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(18, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(19, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(20, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(21, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(22, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(23, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(24, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(25, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(26, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(27, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(28, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(29, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(30, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(31, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(32, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(33, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(34, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(35, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(36, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(37, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(38, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(39, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(40, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(41, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(42, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(43, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(44, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(45, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(46, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(47, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(48, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(49, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(50, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(51, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(52, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(53, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(54, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(55, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(56, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(57, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(58, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(59, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(60, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(61, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(62, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(63, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(64, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(65, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(66, 0, 'tinytable_css_8a5u4d09bl0324jxmzj8') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(0, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(1, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(2, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(3, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(4, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(5, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(6, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(7, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(8, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(9, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(10, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(11, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(12, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(13, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(14, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(15, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(16, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(17, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(18, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(19, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(20, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(21, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(22, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(23, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(24, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(25, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(26, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(27, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(28, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(29, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(30, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(31, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(32, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(33, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(34, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(35, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(36, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(37, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(38, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(39, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(40, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(41, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(42, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(43, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(44, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(45, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(46, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(47, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(48, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(49, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(50, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(51, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(52, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(53, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(54, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(55, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(56, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(57, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(58, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(59, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(60, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(61, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(62, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(63, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(64, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(65, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(66, 1, 'tinytable_css_q2uh9wj5s3q8mpb9mqxf') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(0, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(1, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(2, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(3, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(4, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(5, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(6, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(7, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(8, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(9, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(10, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(11, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(12, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(13, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(14, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(15, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(16, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(17, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(18, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(19, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(20, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(21, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(22, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(23, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(24, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(25, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(26, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(27, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(28, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(29, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(30, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(31, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(32, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(33, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(34, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(35, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(36, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(37, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(38, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(39, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(40, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(41, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(42, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(43, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(44, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(45, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(46, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(47, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(48, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(49, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(50, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(51, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(52, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(53, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(54, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(55, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(56, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(57, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(58, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(59, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(60, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(61, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(62, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(63, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(64, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(65, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(66, 2, 'tinytable_css_oremi9c0ap9eg7z59qjo') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(0, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(1, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(2, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(3, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(4, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(5, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(6, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(7, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(8, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(9, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(10, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(11, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(12, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(13, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(14, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(15, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(16, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(17, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(18, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(19, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(20, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(21, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(22, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(23, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(24, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(25, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(26, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(27, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(28, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(29, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(30, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(31, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(32, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(33, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(34, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(35, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(36, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(37, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(38, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(39, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(40, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(41, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(42, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(43, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(44, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(45, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(46, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(47, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(48, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(49, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(50, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(51, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(52, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(53, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(54, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(55, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(56, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(57, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(58, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(59, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(60, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(61, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(62, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(63, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(64, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(65, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+window.addEventListener('load', function () { styleCell_tinytable_resjofnwlpjekxo0darh(66, 3, 'tinytable_css_nff2vk29k6isnstyxkpw') })
+    </script>
+
+  
+
+
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="dv">10</span><span class="sc">**</span><span class="fu">seq</span>(<span class="dv">3</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>thresh <span class="ot">&lt;-</span> <span class="fl">1e-10</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>cv_ridge.out <span class="ot">&lt;-</span> <span class="fu">cv.glmnet</span>(X[train, ], y[train], <span class="at">alpha =</span> <span class="dv">0</span>, <span class="at">lambda =</span> grid, </span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">nfolds =</span> <span class="dv">10</span>, <span class="at">thresh =</span> thresh)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>ridge.pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(cv_ridge.out, <span class="at">s =</span> cv_ridge.out<span class="sc">$</span>lambda.min,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">newx =</span> X[<span class="sc">-</span>train, ])</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>ridge.test_mse <span class="ot">&lt;-</span> <span class="fu">mean</span>((y[<span class="sc">-</span>train] <span class="sc">-</span> ridge.pred)<span class="sc">**</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>cv_lasso.out <span class="ot">&lt;-</span> <span class="fu">cv.glmnet</span>(X[train, ], y[train], <span class="at">alpha =</span> <span class="dv">1</span>, <span class="at">lambda =</span> grid, </span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">nfolds =</span> <span class="dv">10</span>, <span class="at">thresh =</span> thresh)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>lasso.pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(cv_lasso.out, <span class="at">s =</span> cv_lasso.out<span class="sc">$</span>lambda.min,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">newx =</span> X[<span class="sc">-</span>train, ])</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>lasso.test_mse <span class="ot">&lt;-</span> <span class="fu">mean</span>((y[<span class="sc">-</span>train] <span class="sc">-</span> lasso.pred)<span class="sc">**</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Including the intercept term, there are <span class="math inline">\(p=66\)</span> predictor terms.</p>
 
 </section>
 
