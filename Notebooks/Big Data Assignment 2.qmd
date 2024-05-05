@@ -9,27 +9,7 @@ format:
   pdf:
     fontsize: 11pt
 fig-pos: "H"
-geometry:
-  - left=0.75in
-  - right=0.75in
-  - top=0.75in
-  - bottom=0.75in
 ---
-
-```{r}
-#| include: false
-library(dplyr)
-library(readr)
-library(ggplot2)
-library(gridExtra)
-library(dimRed)
-library(umap)
-library(ISLR)
-library(glmnet)
-library(modelsummary)
-
-set.seed(100)
-```
 
 ## Question 1: Manifold Learning
 
@@ -45,7 +25,7 @@ Firstly we performed PCA on our training set. This is a linear technique that fi
 
 @fig-pca_plot plots the target classes against the first two PCs of the data. Due to the large number of classes, and the number of data points plotted, I found it useful to take a stratified sample of 20% of the data to declutter the plot as well as using the letter to identify which class each plot point is. I will also do this when analyzing the other methods in this report to make the visualisations clearer.
 
-We do see some clusters of letters forming in @fig-pca_plot-2, however there is a lot of overlap between groups, as the linear structure of PCA perhaps is not able to capture some of the non-linearity present in the structure.  In the bottom left, "R" has been quite well isolated, which I suspect is due to it having quite a unique sound when spoken. In contrast to this, on the right hand side of @fig-pca_plot-2, there is a mix of letters like "B", "C", "D", "E", "P", "T", and "Z" clustered together. These letters all share a common /iy/ sound on the end when spoken (like the "ee" in "fleece"), which explains why they have been grouped together, although it would be good to find a dimensionality reduction technique that is further able to separate them based on the different sounds made before the /iy/ sound.
+We do see some clusters of letters forming in @fig-pca_plot, however there is a lot of overlap between groups, as the linear structure of PCA perhaps is not able to capture some of the non-linearity present in the structure.  In the bottom left, "R" has been quite well isolated, which I suspect is due to it having quite a unique sound when spoken. In contrast to this, on the right hand side of @fig-pca_plot, there is a mix of letters like "B", "C", "D", "E", "P", "T", and "Z" clustered together. These letters all share a common /iy/ sound on the end when spoken (like the "ee" in "fleece"), which explains why they have been grouped together, although it would be good to find a dimensionality reduction technique that is further able to separate them based on the different sounds made before the /iy/ sound.
 
 ### Isometric Mapping (Isomap)
 
@@ -70,210 +50,33 @@ UMAP, as described by @mcinnes2020umap and in the documents for the python imple
 
 We will test the effect of varying $n$ using values of 5, 15, 40, 80, 150, and 500. According to the documentation, $n$ affects whether we will get an embedding that focuses more on local structure (small values of $n$) or global structure (large values of $n$).
 
-From the results in @fig-umap_k, we can can see that for the smaller values of `n_neighbors` that there are certain letters that have been grouped by themselves but have no obvious links to other letters such as "W" in the top right of @fig-umap_k and "Y" in the bottom left. As the value of `n_neighbors` is increased UMAP does a better job at seeing the global structure of the data while still retaining local structure. As we increase `n_neighbors` even more, and more emphasis is placed on the global structure, some of the local structure is lost as can be seen by with certain data points no longer being close to those of the same grouping and more overlap of groups.
+From the results in @fig-umap_k, we can can see that for the smaller values of `n_neighbors` that there are certain letters that have been grouped by themselves but have no obvious links to other letters such as "W" in the top right of @fig-umap_k and "Y" in the bottom left. As the value of `n_neighbors` is increased UMAP does a better job at representing the global structure of the data while still retaining local structure. As we increase `n_neighbors` even more, and more emphasis is placed on the global structure, some of the local structure is lost as can be seen by with certain data points no longer being close to those of the same grouping and more overlap of groups.
 
 ## Question 2: Clustering
 
 Prior to our clustering analysis we perform PCA on the NCI60 dataset. The first two principal components contain 21.1% of the variance of the overall variance of the dataset. We will plot any resulting clusters against these two principal components to be able to visualise the results in two dimensions.
 
-```{r}
-#| label: lst-pca_nci60
-#| echo: false
-
-# load in the NCI60 data from the ISLR package
-nci.data <- NCI60$data
-
-# normalize the transposed dataframe and get the PCA transformed columns
-X <- scale(t(nci.data))
-P <- prcomp(X)$x
-```
-
-```{r}
-#| label: lst-dist_clust
-#| echo: false
-
-# hierarchical clustering with complete linkage and euclidean distance
-dist_mat <- dist(X, method="euclidean")
-hclust_comp <- hclust(dist_mat, method="complete")
-```
-
 First we perform hierarchical clustering, with complete linkage and euclidean distance, on the dataset for three to six clusters. From @tbl-cluster1 we can see the size of the resulting clusters. For the first cut of the dendrogram which creates three clusters, we have one large cluster with 6,792 features, and two smaller clusters with only 35 and 3 features. The next cut that creates four clusters does so by splitting the cluster with 35 features into two clusters with 29 and 6 features. For five clusters, the large cluster of 6,792 features is split into one large cluster with 6,559 features and one smaller cluster with 233 features. Lastly, for six clusters, the cluster with 29 features is split into two clusters with 22 and 7 features.
 
 From this description we can see that how we obtain clusters in hierarchical clustering results in a nested structure, where the clustering obtained by cutting the dendrogram at a certain height is contained within the clustering obtained by cutting the dendrogram at a greater height.
 
-```{r}
-#| label: lst-hierarch_complete
-#| echo: false
 
-n_clust <- c(3, 4, 5, 6)
-clustplot.list <- list()
-clust.counts <- data.frame(Cluster = seq(1, 6), Three=integer(6), 
-                           Four=integer(6), Five=integer(6), Six=integer(6))
+@fig-hierarch_complete shows the resulting clusters plotted against the first two principal components of the data. As we can see, using a euclidean distance and complete linkage has resulted in one predominant cluster of genes and several smaller clusters. From this, we may be able to deduce that across the 64 different cancer cell lines in our dataset, the majority of genes show similar levels of expression
 
-# loop over 3, 4, 5, and 6 clusters store plot results
-for (i in 1:length(n_clust)) {
-  # cut at specified number of clusters
-  cut <- cutree(hclust_comp, k=n_clust[i])
-  
-  # create data frame with first two PCs of data and cluster results
-  hclust_cut <- data.frame(x = P[, 1], y = P[, 2], cluster = factor(cut))
-  
-  # store results of plot 
-  p <- ggplot(hclust_cut, aes(x, y, color=cluster)) + geom_point(alpha = 0.5)
-  clustplot.list[[i]] <- p
-  
-  # count number of observations in each cluster
-  for (j in 1:max(n_clust)) {
-    clust.counts[j, i + 1] <- nrow(hclust_cut[hclust_cut$cluster == j, ])
-  }
-}
-```
-
-```{r}
-#| label: tbl-cluster1
-#| tbl-cap:
-#|   - "Number of observations in each cluster for complete linkage and 
-#|   euclidean distance for three, four, five, and six clusters"
-#| echo: false
-
-knitr::kable(clust.counts, align="lrrrr",
-             col.names=c("Cluster ID", "Three Clusters", "Four Clusters", 
-                         "Five Clusters", "Six Clusters"))
-```
-
-```{r}
-#| label: fig-hierarch_complete
-#| fig-cap: 
-#|   - "Hierarchical clustering of genes within the NCI60 dataset  with complete
-#|    linkage and euclidean distance, for three, four, five, and six clusters."
-#| echo: false
-
-grid.arrange(clustplot.list[[1]], clustplot.list[[2]], clustplot.list[[3]], 
-             clustplot.list[[4]], ncol=2)
-```
-
-@fig-hierarch_complete shows the resulting clusters plotted against the first two principal components of the data. As we can see, this method results in one main cluster and several smaller clusters. From this, we may be able to deduce that across the 64 different cancer cell lines in our dataset, the majority of genes show similar levels of expression
-
-```{r}
-#| label: lst-hierarch_corr
-#| echo: false
-
-# compute (1 - corr) of matrix of (transposed) data and convert to a dist object
-# 
-cor_mat <- as.dist(1 - cor(t(X)))
-
-# agglomerative clustering
-hclust_cor_complete <- hclust(cor_mat, method="complete")
-
-clustplot_cor.list <- list()
-cor_clust.counts <- data.frame(Cluster=seq(1, 6), Three=integer(6), 
-                               Four=integer(6), Five=integer(6), Six=integer(6))
-
-for (i in 1:length(n_clust)) {
-  # cut at specified number of clusters
-  cor_cut <- cutree(hclust_cor_complete, k=n_clust[i])
-  
-  # create data frame with first two PCs of data and cluster results
-  hclust_cor_cut <- data.frame(x=P[, 1], y=P[, 2], cluster=factor(cor_cut))
-  
-  # store results of plot 
-  p_cor <- ggplot(hclust_cor_cut, aes(x, y, color=cluster)) + geom_point(alpha = 0.5)
-  clustplot_cor.list[[i]] <- p_cor
-  
-  # count number of observations in each cluster
-  for (j in 1:max(n_clust)) {
-    cor_clust.counts[j, i + 1]  <-  
-      nrow(hclust_cor_cut[hclust_cor_cut$cluster == j, ])
-  }
-}
-```
-
-Now we repeat the same analysis, but instead of using the euclidean distance between two observations, $\mathbf{x}$ and $\mathbf{y}$, of $\sqrt{\sum_{i=1}^{n}(x_i-y_i)^2}$, we use a correlation based distance of $1 - \mbox{cor}(\mathbf{x}, \mathbf{y})$. We must take care to use the transpose of our data, as R's `cor` function calculates correlations between the columns of a matrix whereas we want the correlations between rows (i.e observations), for further details of the code see Appendix XX. By subtracting one, we turn the correlations into a measure of closeness that ranges from 0 (for perfectly positively correlated observations) to 2 (for perfectly negatively correlated observations).
+Now we repeat the same analysis, but instead of using the euclidean distance between two observations, $\mathbf{x}$ and $\mathbf{y}$, of $\sqrt{\sum_{i=1}^{n}(x_i-y_i)^2}$, we use a correlation based distance of $1 - \mbox{cor}(\mathbf{x}, \mathbf{y})$. We must take care to use the transpose of our data, as R's `cor` function calculates correlations between the columns of a matrix whereas we want the correlations between rows (i.e observations), for further details of the code see the Appendix. By subtracting one, we turn the correlations into a measure of closeness that ranges from 0 (for perfectly positively correlated observations) to 2 (for perfectly negatively correlated observations).
 
 The resulting size of the clusters is given in @tbl-cluster2, and they are plotted against the first two principal components in @fig-hierarch_corr. Compared to the hierarchical clustering we have more evenly sized clusters
 
-```{r}
-#| label: tbl-cluster2
-#| tbl-cap:
-#|   - "Number of observations in each cluster for complete linkage and 
-#|   correlation based distance for three, four, five, and six clusters"
-#| echo: false
-
-knitr::kable(cor_clust.counts, align="lrrrr", 
-             col.names=c("Cluster ID", "Three Clusters", "Four Clusters", 
-                         "Five Clusters", "Six Clusters"))
-```
-
-```{r}
-#| label: fig-hierarch_corr
-#| fig-cap: 
-#|   - "Hierarchical clustering of genes within the NCI60 dataset  with complete
-#|    linkage and correlation based distance, for three, four, five, and six 
-#|    clusters."
-#| echo: false
-
-grid.arrange(clustplot_cor.list[[1]], clustplot_cor.list[[2]], 
-             clustplot_cor.list[[3]], clustplot_cor.list[[4]], ncol=2)
-```
-
-```{r}
-#| label: lst-kmeans
-#| echo: false
-
-k_clustplot.list <- list()
-k_clust.counts <- data.frame(Cluster=seq(1, 6), Three=integer(6), 
-                             Four=integer(6), Five=integer(6), Six=integer(6))
-
-# for k-means we will need to repeat the clustering for each k unlike 
-# hierarchical clustering
-for (i in 1:length(n_clust)) {
-  # perform k-means clustering for each k
-  kmeans_clust <- kmeans(X, centers=n_clust[i])
-  
-  # create data frame with first two PCs of data and cluster results
-  kmeans_dat <- data.frame(x=P[, 1], y=P[, 2],
-                           cluster=factor(kmeans_clust$cluster))
-  
-  # store results of plot 
-  p_k <- ggplot(kmeans_dat, aes(x, y, color=cluster)) + geom_point()
-  k_clustplot.list[[i]] <- p_k
-  
-  # count number of observations in each cluster
-  for (j in 1:max(n_clust)) {
-    k_clust.counts[j, i + 1]  <-  
-      sum(kmeans_clust$cluster == j)
-  }
-}
-```
-
 Lastly we perform K-means clustering on the data, using the `kmeans` function in R, for three to six clusters. The size of the resulting clusters is given in @tbl-cluster3. Similar to the hierarchical clustering with correlation based distance, we get more evenly sized clusters.
-
-```{r}
-#| label: tbl-cluster3
-#| tbl-cap:
-#|   - "Number of observations in each cluster for K-means clustering for three,
-#|    four, five, and six clusters"
-#| echo: false
-
-knitr::kable(k_clust.counts, align="lrrrr", 
-             col.names=c("Cluster ID", "Three Clusters", "Four Clusters", 
-                         "Five Clusters", "Six Clusters"))
-```
-
-```{r}
-#| label: fig-kmeans
-#| fig-cap: 
-#|   - "K-means clustering of genes within the NCI60 dataset for three, four, 
-#|   five, and six clusters."
-#| echo: false
-
-grid.arrange(k_clustplot.list[[1]], k_clustplot.list[[2]], 
-             k_clustplot.list[[3]],  k_clustplot.list[[4]], ncol=2)
-```
 
 ## Question 3: Regression
 
+### Linear Regression
+
 Firstly we are performing linear regression on the `Credit` dataset from the `ISLR` package, with `Balance` as the independent variable, and all pairwise interactions of the remaining 10 variables (excluding ID) as dependent variables. @tbl-credit shows the first 7 rows of the dataset, where we can see that we have 7 numeric variables (`Income`, `Limit`, `Rating`, `Cards`, `Age`, `Education`), three binary categorical variables (`Gender`, `Student`, `Married`), and one categorical variable with three levels (`Ethnicity`). Using dummy coding we will have 11 predictors relating to these 10 variables (`Ethnicity` will require two terms), with an additional 54 predictors from the pairwise interactions, and one for the intercept term. In total this gives up $p=66$ predictor terms.
+
+In order to generate the test and training datasets used in this analysis, we used `set.seed(42)` to control the rng and ensure our results are reproducible, and split the data into 50% training and 50% test using the code in the Appendix. We will train all of our regression models on the training set, and evaluate the performance on the test set using mean squared error (MSE).
+
 
 ```{r}
 #| label: tbl-credit
@@ -283,94 +86,53 @@ Firstly we are performing linear regression on the `Credit` dataset from the `IS
 #|   variable"
 #| echo: false
 
-knitr::kable(head(Credit, n = 7L))
+knitr::kable(head(ISLR::Credit, n = 7L))
 ```
 
-In order to generate the test and training datasets used in this analysis, we used `set.seed(42)` to control the rng and ensure our results are reproducible, and split the data into 50% training and 50% test using the code in @lst-model_matrix. We will train all of our regression models on the training set, and evaluate the performance on the test set using mean squared error (MSE).
+For the linear regression model with all pairwise interactions we obtain a test MSE of $6437.2$.
 
-```{r}
-#| label: lst-model_matrix
-#| echo: false
+### Ridge Regression
 
-set.seed(42)
+Next we fit the same model, but instead of ordinary least squares, we use ridge regression which adds a penalty term of the form $\mathrm{RSS} + \lambda \sum_{j=1}^p\beta_j^2$. This is also known as $l_2$ regularization. For $\lambda > 0$, this has the effect of shrinking the parameter estimates towards zero, introducing bias to the estimates but reducing variance. 
 
-# [, -1] drops the Row ID variable
-credit <- Credit[, -1]
+We want to find a value for $\lambda$ that balances the bias-variance trade off so that the model we fit generalises well to unseen data. To do this we will use cross-validation to select the value for $\lambda$, and then refit the model on all of the data. The code for this can be found in the appendix.
 
-# [, -1} drops intercept term as models automatically fit intercept
-X <- model.matrix(Balance ~ . * ., credit)[, -1]
-y <- credit$Balance
+The cross-validation error for different values of $\lambda$ is shown in @fig-ridge_cv. The value that minimises the cross-validation error is $\lambda_{min} = 0.93$. 
 
-train <- sample(1:nrow(X), nrow(X)/2)
-test <- -train
-```
+Using the model obtained by fitting a ridge regression with $\lambda=\lambda_{min}$ on the whole training data, we obtain a test MSE of $6515.7$. This is slightly higher than the equivalent linear regression model, suggesting that the ridge regression model is not an improvement on the linear regression for predicting credit card balance.
 
-```{r}
-#| label: lst-lm
-#| echo: false
+### Lasso Regression
 
-# fit linear regression on training data
-linear.mod <- lm(Balance ~ .*., data = credit[train, ])
-# predictions on test data
-linear.pred <- coef(linear.mod)[1] + X[test, ] %*% coef(linear.mod)[-1]
-# compute test MSE
-linear.test_mse <- mean((y[test] - linear.pred)**2)
-```
+Next we fit a lasso model which adds a penalty term of the form $\mathrm{RSS} + \lambda \sum_{j=1}^p\lvert\beta_j\rvert$. This is also known as $l_1$ regularization. Similarly to ridge regression, this has the effect of shrinking the parameter estimates towards zero, but in a way that naturally performs feature selection by allowing parameter estimates to be equal to zero exactly, excluding them from the model.
 
-```{r}
-#| label: lst-ridge
-#| echo: false
+Again we use cross validation to select the value for $\lambda$, and then refit the model on all of the data. The code for this can be found in the appendix.
 
-# grid to search for best lambda
-grid <- 10**seq(3, -1, length.out=100)
-# convergence criteria for descent algorithm
-thresh <- 1e-10
+The cross-validation error for different values of $\lambda$ is shown in @fig-lasso_cv. The value that minimises the cross-validation error is $\lambda_{min} = 1.12$. 
 
-set.seed(42)
-# perform ridge regression, searching for best lambda using cross-validation
-cv_ridge.out <- cv.glmnet(X[train, ], y[train], alpha=0, lambda=grid, 
-                          nfolds=10, thresh=thresh)
-#refit model on all of the data with s=lambda.min
-ridge.mod <- glmnet(X[train, ], y[train], alpha=0, 
-                    lambda=cv_ridge.out$lambda.min)
-# predictions on test data
-ridge.pred <- predict(ridge.mod, newx=X[test, ])
-# compute test MSE
-ridge.test_mse <- mean((y[-train] - ridge.pred)**2)
+Using the model obtained by fitting a ridge regression with $\lambda=\lambda_{min}$ on the whole training data, we obtain a test MSE of $5800.3$. This an improvement on both the linear regression and ridge regression, suggesting that the lasso model is better able to predict credit card balances.
 
-```
+Along the top of @fig-lasso_cv, we can see that at the value of $\lambda_{min}$ there are between 33 and 36 non-zero predictors used by the model. Examining the output of `coef(lasso.mod)` reveals that there are 34 features (not including the intercept) selected by the lasso.
 
-```{r}
-#| label: lst-lasso
-#| echo: false
+@tbl-modelsumm gives the coefficients from the three models fit. As mentioned previously, the lasso model has a number of variables not included in the model (given by NA values). The ridge model has the same number of coefficients as the linear regression model, but on average it has coefficients that are closer to zero in value than in the corresponding linear regression model. 
 
-set.seed(42)
-# perform lasso regression, searching for best lambda using cross-validation
-cv_lasso.out <- cv.glmnet(X[train, ], y[train], alpha=1, lambda=grid, 
-                          nfolds=10, thresh=thresh)
-#refit model on all of the data with s=lambda.min
-lasso.mod <- glmnet(X[train, ], y[train], alpha=1, 
-                    lambda=cv_lasso.out$lambda.min)
-# predictions on test data
-lasso.pred <- predict(lasso.mod, newx=X[-train, ])
-# compute test MSE
-lasso.test_mse <- mean((y[-train] - lasso.pred)**2)
-```
 
-```{r}
-#| label: tbl-modelsumm
-#| tbl-cap: 
-#|   - "Model coefficients from the three regression models "
-#| echo: false
-#| output: false
-
-model.list <- list("Linear Regression" = linear.mod,
-                   "Ridge Regression" = ridge.mod,
-                   "Lasso Regression" = lasso.mod)
-modelsummary(model.list, statistic=NULL, fmt=4, gof_map="none")
-```
+@fig-test_preds gives the plot of test predictions vs actuals for our three models. All models suffer the same error of predicting negative credit card balances, and the actual dataset has a concentration of observations with zero credit card balance which all models are unable to predict well.
 
 ## Appendix {.appendix}
+
+```{r}
+#| warning: false
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(gridExtra)
+library(dimRed)
+library(umap)
+library(ISLR)
+library(glmnet)
+
+set.seed(100)
+```
 
 ### Question 1 Code and Figures
 
@@ -466,7 +228,6 @@ ggplot(var_explained %>% slice_head(n = 30), aes(x=pc, y=cum_sum)) +
 #| label: fig-pca_plot
 #| echo: false
 #| fig-cap: Classes plotted against first two principal components. 
-#| output: false
 
 # create index of stratified sample of data
 pca_samp <- caret::createDataPartition(isolet_target$class, p=0.2, list=FALSE)
@@ -512,7 +273,6 @@ ggplot(isolet.isomap.data[isomap_samp, ],
 
 ```{r}
 #| label: lst-umap
-#| echo: false
 #| output: false
 
 # use umap implementation of UMAP with default settings
@@ -555,11 +315,330 @@ for (i in 1:length(k)) {
                                class = isolet_target[samp, ]$class)
   
   p <- ggplot(umap_embedding, aes(x=x1, y=x2, label=class, color=class)) + 
-    geom_text(size=3, show.legend=FALSE) + 
+    geom_text(size=3, show.legend=FALSE, alpha=0.75) + 
     ggtitle(paste("n = ", k[i]))
   
   plot.list[[i]] = p
 }
 grid.arrange(plot.list[[1]], plot.list[[2]], plot.list[[3]], plot.list[[4]],
              plot.list[[5]], plot.list[[5]], ncol=3)
+```
+
+### Question 2 Code and Figures
+
+```{r}
+#| label: lst-pca_nci60
+
+# load in the NCI60 data from the ISLR package
+nci.data <- NCI60$data
+
+# normalize the transposed dataframe and get the PCA transformed columns
+X <- scale(t(nci.data))
+P <- prcomp(X)$x
+```
+
+```{r}
+#| label: lst-dist_clust
+
+# hierarchical clustering with complete linkage and euclidean distance
+dist_mat <- dist(X, method="euclidean")
+hclust_comp <- hclust(dist_mat, method="complete")
+```
+
+
+```{r}
+#| label: lst-hierarch_complete
+
+n_clust <- c(3, 4, 5, 6)
+clustplot.list <- list()
+clust.counts <- data.frame(Cluster = seq(1, 6), Three=integer(6), 
+                           Four=integer(6), Five=integer(6), Six=integer(6))
+
+# loop over 3, 4, 5, and 6 clusters store plot results
+for (i in 1:length(n_clust)) {
+  # cut at specified number of clusters
+  cut <- cutree(hclust_comp, k=n_clust[i])
+  
+  # create data frame with first two PCs of data and cluster results
+  hclust_cut <- data.frame(x = P[, 1], y = P[, 2], cluster = factor(cut))
+  
+  # store results of plot 
+  p <- ggplot(hclust_cut, aes(x, y, color=cluster)) + geom_point(alpha = 0.5)
+  clustplot.list[[i]] <- p
+  
+  # count number of observations in each cluster
+  for (j in 1:max(n_clust)) {
+    clust.counts[j, i + 1] <- nrow(hclust_cut[hclust_cut$cluster == j, ])
+  }
+}
+```
+
+```{r}
+#| label: tbl-cluster1
+#| tbl-cap:
+#|   - "Number of observations in each cluster for complete linkage and 
+#|   euclidean distance for three, four, five, and six clusters"
+#| echo: false
+
+knitr::kable(clust.counts, align="lrrrr",
+             col.names=c("Cluster ID", "Three Clusters", "Four Clusters", 
+                         "Five Clusters", "Six Clusters"))
+```
+
+```{r}
+#| label: fig-hierarch_complete
+#| fig-cap: 
+#|   - "Hierarchical clustering of genes within the NCI60 dataset  with complete
+#|    linkage and euclidean distance, for three, four, five, and six clusters."
+#| echo: false
+
+grid.arrange(clustplot.list[[1]], clustplot.list[[2]], clustplot.list[[3]], 
+             clustplot.list[[4]], ncol=2)
+```
+
+```{r}
+#| label: lst-hierarch_corr
+
+# compute (1 - corr) of matrix of (transposed) data and convert to a dist object
+# 
+cor_mat <- as.dist(1 - cor(t(X)))
+
+# agglomerative clustering
+hclust_cor_complete <- hclust(cor_mat, method="complete")
+
+clustplot_cor.list <- list()
+cor_clust.counts <- data.frame(Cluster=seq(1, 6), Three=integer(6), 
+                               Four=integer(6), Five=integer(6), Six=integer(6))
+
+for (i in 1:length(n_clust)) {
+  # cut at specified number of clusters
+  cor_cut <- cutree(hclust_cor_complete, k=n_clust[i])
+  
+  # create data frame with first two PCs of data and cluster results
+  hclust_cor_cut <- data.frame(x=P[, 1], y=P[, 2], cluster=factor(cor_cut))
+  
+  # store results of plot 
+  p_cor <- ggplot(hclust_cor_cut, aes(x, y, color=cluster)) + geom_point(alpha = 0.5)
+  clustplot_cor.list[[i]] <- p_cor
+  
+  # count number of observations in each cluster
+  for (j in 1:max(n_clust)) {
+    cor_clust.counts[j, i + 1]  <-  
+      nrow(hclust_cor_cut[hclust_cor_cut$cluster == j, ])
+  }
+}
+```
+
+
+```{r}
+#| label: tbl-cluster2
+#| tbl-cap:
+#|   - "Number of observations in each cluster for complete linkage and 
+#|   correlation based distance for three, four, five, and six clusters"
+#| echo: false
+
+knitr::kable(cor_clust.counts, align="lrrrr", 
+             col.names=c("Cluster ID", "Three Clusters", "Four Clusters", 
+                         "Five Clusters", "Six Clusters"))
+```
+
+```{r}
+#| label: fig-hierarch_corr
+#| fig-cap: 
+#|   - "Hierarchical clustering of genes within the NCI60 dataset  with complete
+#|    linkage and correlation based distance, for three, four, five, and six 
+#|    clusters."
+#| echo: false
+
+grid.arrange(clustplot_cor.list[[1]], clustplot_cor.list[[2]], 
+             clustplot_cor.list[[3]], clustplot_cor.list[[4]], ncol=2)
+```
+
+
+```{r}
+#| label: lst-kmeans
+
+k_clustplot.list <- list()
+k_clust.counts <- data.frame(Cluster=seq(1, 6), Three=integer(6), 
+                             Four=integer(6), Five=integer(6), Six=integer(6))
+
+# for k-means we will need to repeat the clustering for each k unlike 
+# hierarchical clustering
+for (i in 1:length(n_clust)) {
+  # perform k-means clustering for each k
+  kmeans_clust <- kmeans(X, centers=n_clust[i])
+  
+  # create data frame with first two PCs of data and cluster results
+  kmeans_dat <- data.frame(x=P[, 1], y=P[, 2],
+                           cluster=factor(kmeans_clust$cluster))
+  
+  # store results of plot 
+  p_k <- ggplot(kmeans_dat, aes(x, y, color=cluster)) + geom_point()
+  k_clustplot.list[[i]] <- p_k
+  
+  # count number of observations in each cluster
+  for (j in 1:max(n_clust)) {
+    k_clust.counts[j, i + 1]  <-  
+      sum(kmeans_clust$cluster == j)
+  }
+}
+```
+
+```{r}
+#| label: tbl-cluster3
+#| tbl-cap:
+#|   - "Number of observations in each cluster for K-means clustering for three,
+#|    four, five, and six clusters"
+#| echo: false
+
+knitr::kable(k_clust.counts, align="lrrrr", 
+             col.names=c("Cluster ID", "Three Clusters", "Four Clusters", 
+                         "Five Clusters", "Six Clusters"))
+```
+
+```{r}
+#| label: fig-kmeans
+#| fig-cap: 
+#|   - "K-means clustering of genes within the NCI60 dataset for three, four, 
+#|   five, and six clusters."
+#| echo: false
+
+grid.arrange(k_clustplot.list[[1]], k_clustplot.list[[2]], 
+             k_clustplot.list[[3]],  k_clustplot.list[[4]], ncol=2)
+```
+
+### Question 3 Code and Figures
+
+
+```{r}
+#| label: lst-model_matrix
+
+set.seed(42)
+
+# [, -1] drops the Row ID variable
+credit <- Credit[, -1]
+
+# [, -1} drops intercept term as models automatically fit intercept
+X <- model.matrix(Balance ~ . * ., credit)[, -1]
+y <- credit$Balance
+
+train <- sample(1:nrow(X), nrow(X)/2)
+test <- -train
+```
+
+```{r}
+#| label: lst-lm
+
+# fit linear regression on training data
+linear.mod <- lm(Balance ~ .*., data = credit[train, ])
+# predictions on test data
+linear.pred <- coef(linear.mod)[1] + X[test, ] %*% coef(linear.mod)[-1]
+# compute test MSE
+linear.test_mse <- mean((y[test] - linear.pred)**2)
+```
+
+
+```{r}
+#| label: lst-ridge
+
+# grid to search for best lambda
+grid <- 10**seq(3, -1, length.out=100)
+# convergence criteria for descent algorithm
+thresh <- 1e-10
+
+set.seed(42)
+# perform ridge regression, searching for best lambda using cross-validation
+cv_ridge.out <- cv.glmnet(X[train, ], y[train], alpha=0, lambda=grid,
+                          nfolds=10, thresh=thresh)
+#refit model on all of the data with s=lambda.min
+ridge.mod <- glmnet(X[train, ], y[train], alpha=0, 
+                    lambda=cv_ridge.out$lambda.min)
+# predictions on test data
+ridge.pred <- predict(ridge.mod, newx=X[test, ])
+# compute test MSE
+ridge.test_mse <- mean((y[test] - ridge.pred)**2)
+
+```
+
+```{r}
+#| label: fig-ridge_cv
+#| fig-cap: 
+#|   - "Selection of tuning parameter for ridge regression. Minimum value occurs
+#|   at 0.93"
+#| echo: false
+
+plot(cv_ridge.out)
+```
+
+```{r}
+#| label: lst-lasso
+
+set.seed(42)
+# perform lasso regression, searching for best lambda using cross-validation
+cv_lasso.out <- cv.glmnet(X[train, ], y[train], alpha=1, lambda=grid, 
+                          nfolds=10, thresh=thresh)
+#refit model on all of the data with s=lambda.min
+lasso.mod <- glmnet(X[train, ], y[train], alpha=1, 
+                    lambda=cv_lasso.out$lambda.min)
+# predictions on test data
+lasso.pred <- predict(lasso.mod, newx=X[test, ])
+# compute test MSE
+lasso.test_mse <- mean((y[test] - lasso.pred)**2)
+```
+
+```{r}
+#| label: fig-lasso_cv
+#| fig-cap: 
+#|   - "Selection of tuning parameter for lasso regression. Minimum value occurs
+#|   at 1.12"
+#| echo: false
+
+plot(cv_lasso.out)
+```
+
+
+```{r}
+#| label: tbl-modelsumm
+#| tbl-cap: 
+#|   - "Model coefficients from the three regression models"
+
+coefs <- 
+  data.frame(variable=names(coef(linear.mod)), 
+             OLS=coef(linear.mod)) %>% 
+  left_join(
+    data.frame(variable=coef(ridge.mod)@Dimnames[[1]][coef(ridge.mod)@i + 1],
+               Ridge=coef(ridge.mod)@x),
+  join_by(variable)) %>% 
+  left_join(
+    data.frame(variable=coef(lasso.mod)@Dimnames[[1]][coef(lasso.mod)@i + 1],
+               Lasso=coef(lasso.mod)@x),
+  join_by(variable))
+
+knitr::kable(coefs)
+```
+
+
+```{r}
+#| label: fig-test_preds
+#| fig-cap: 
+#|   - "Test predictions vs actuals for the three models"
+
+test_preds <- 
+  data.frame(method=rep("OLS", length(linear.pred)),
+             predicted=linear.pred[, 1],
+             actual=credit$Balance[test]) %>% 
+  bind_rows(
+    data.frame(method=rep("Ridge", length(ridge.pred)),
+               predicted=ridge.pred[, 1],
+               actual=credit$Balance[test])
+  ) %>% 
+  bind_rows(
+    data.frame(method=rep("Lasso", length(lasso.pred)),
+               predicted=lasso.pred[, 1],
+               actual=credit$Balance[test])
+  )
+
+ggplot(test_preds, aes(x = actual, y = predicted, color = method)) + 
+  geom_point(alpha = 0.75) + 
+  geom_abline(intercept = 0, slope = 1)
 ```
