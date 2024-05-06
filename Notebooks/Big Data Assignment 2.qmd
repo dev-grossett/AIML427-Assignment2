@@ -8,6 +8,7 @@ bibliography: references.bib
 format:
   pdf:
     fontsize: 11pt
+    cite-method: biblatex
 fig-pos: "H"
 ---
 
@@ -15,13 +16,13 @@ fig-pos: "H"
 
 For this question I have selected the [Isolet dataset](https://archive.ics.uci.edu/dataset/54/isolet) from the UCI Machine Learning Repository. It contains data from 150 subject who were recorded speaking each letter of the English alphabet twice, for a total of 7,797 observations (3 observations are missing). The purpose of this dataset is to train a model to classify recordings of speech by what letter of the alphabet is being said. The data has already been split into a training set of 6,238 observations (120 subjects) and a training set of 1,559 observations (30 subjects). I will limit my analysis to the training set.
 
-There are 617 features, the majority of the which (448) are discrete Fourier transform coefficients of different parts of the waveform corresponding to the different sonorant intervals (SON) of each letter. The other features are a variety of other wave measurements corresponding to different SON, such as zero-crossing rate, amplitude, and duration. Detailed information can be found in the paper by @slr.
+There are 617 features, the majority of which (448) are discrete Fourier transform coefficients of different parts of the waveform corresponding to the different sonorant intervals (SON) of each letter. The other features are a variety of other wave measurements corresponding to different SON, such as zero-crossing rate, amplitude, and duration. Detailed information can be found in the paper by @slr.
 
 This dataset provides a highly dimensional problem with which to test different dimensionality reduction techniques, with applications to the real world. Voice recognition software is becoming more widespread with voice assistants such as Alexa and Siri, which rely on models to translate voice recordings into text that it can parse.
 
 ### Principal Component Analysis (PCA)
 
-Firstly we performed PCA on our training set. This is a linear technique that finds linear combinations of the original features that are uncorrelated and maximise the variance of the new principal components. As shown in @fig-var_explained-1, the first PC contains 19% of the variance of overall variance in our data, then 9% for the next PC. From @fig-var_explained-2, we can also see that cumulatively, half of the variance is explained by the first 8 PCs, although this tapers off and it isn't until the 112th PC has been added that 90% of the overall variance in our data is explained by its principal components.
+Firstly we performed PCA on our training set. This is a linear technique that finds linear combinations of the original features that are uncorrelated and maximises the variance of the new principal components. As shown in @fig-var_explained-1, the first PC contains 19% of the variance of overall variance in our data, then 9% for the next PC. From @fig-var_explained-2, we can also see that cumulatively, half of the variance is explained by the first 8 PCs, although this tapers off and it isn't until the 112th PC has been added that 90% of the overall variance in our data is explained by its principal components.
 
 @fig-pca_plot plots the target classes against the first two PCs of the data. Due to the large number of classes, and the number of data points plotted, I found it useful to take a stratified sample of 20% of the data to declutter the plot as well as using the letter to identify which class each plot point is. I will also do this when analyzing the other methods in this report to make the visualisations clearer.
 
@@ -41,7 +42,7 @@ With the default settings, UMAP has isolated letters into very distinct groups, 
 
 ### Tuning of UMAP
 
-UMAP, as described by @mcinnes2020umap and in the documents for the python implementation [`umap-learn`](https://github.com/lmcinnes/umap), has four main hyperparameters. These are:
+UMAP, as described by @mcinnes2020umap and in the documents for the python implementation [`umap-learn`](https://github.com/lmcinnes/umap), UMAP has four main hyperparameters. These are:
 
 -   $n$, the number of neighbours to consider
 -   $d$, the target embedding dimension
@@ -50,7 +51,7 @@ UMAP, as described by @mcinnes2020umap and in the documents for the python imple
 
 We will test the effect of varying $n$ using values of 5, 15, 40, 80, 150, and 500. According to the documentation, $n$ affects whether we will get an embedding that focuses more on local structure (small values of $n$) or global structure (large values of $n$).
 
-From the results in @fig-umap_k, we can can see that for the smaller values of `n_neighbors` that there are certain letters that have been grouped by themselves but have no obvious links to other letters such as "W" in the top right of @fig-umap_k and "Y" in the bottom left. As the value of `n_neighbors` is increased UMAP does a better job at representing the global structure of the data while still retaining local structure. As we increase `n_neighbors` even more, and more emphasis is placed on the global structure, some of the local structure is lost as can be seen by with certain data points no longer being close to those of the same grouping and more overlap of groups.
+From the results in @fig-umap_k, we can can see that for the smaller values of `n_neighbors`, there are certain letters that have been grouped by themselves but have no obvious links to other letters such as "W" in the top right of @fig-umap_k and "Y" in the bottom left. As the value of `n_neighbors` is increased, UMAP does a better job at representing the global structure of the data while still retaining local structure. As we increase `n_neighbors` even more, and more emphasis is placed on the global structure, some of the local structure is lost as can be seen by with certain data points no longer being close to those of the same grouping and more overlap of groups.
 
 ## Question 2: Clustering
 
@@ -80,7 +81,7 @@ K-means clustering uses a euclidean metric, like we used for the initial hierarc
 
 ### Linear Regression
 
-Firstly we are performing linear regression on the `Credit` dataset from the `ISLR` package, with `Balance` as the independent variable, and all pairwise interactions of the remaining 10 variables (excluding ID) as dependent variables. @tbl-credit shows the first 7 rows of the dataset, where we can see that we have 7 numeric variables (`Income`, `Limit`, `Rating`, `Cards`, `Age`, `Education`), three binary categorical variables (`Gender`, `Student`, `Married`), and one categorical variable with three levels (`Ethnicity`). Using dummy coding we will have 11 predictors relating to these 10 variables (`Ethnicity` will require two terms), with an additional 54 predictors from the pairwise interactions, and one for the intercept term. In total this gives up $p=66$ predictor terms.
+Firstly we are performing linear regression on the `Credit` dataset from the `ISLR` package, with `Balance` as the independent variable, and all pairwise interactions of the remaining 10 variables (excluding ID) as dependent variables. @tbl-credit shows the first 7 rows of the dataset, where we can see that we have 7 numeric variables (`Income`, `Limit`, `Rating`, `Cards`, `Age`, `Education`), three binary categorical variables (`Gender`, `Student`, `Married`), and one categorical variable with three levels (`Ethnicity`). Using dummy coding we will have 11 predictors relating to these 10 variables (`Ethnicity` will require two terms), with an additional 54 predictors from the pairwise interactions, and one for the intercept term. In total this gives us $p=66$ predictor terms.
 
 In order to generate the test and training datasets used in this analysis, we used `set.seed(42)` to control the rng and ensure our results are reproducible, and split the data into 50% training and 50% test using the code in the Appendix. We will train all of our regression models on the training set, and evaluate the performance on the test set using mean squared error (MSE).
 
@@ -649,3 +650,5 @@ ggplot(test_preds, aes(x = actual, y = predicted, color = method)) +
   geom_point(alpha = 0.75) + 
   geom_abline(intercept = 0, slope = 1)
 ```
+
+### References
