@@ -56,18 +56,25 @@ From the results in @fig-umap_k, we can can see that for the smaller values of `
 
 Prior to our clustering analysis we perform PCA on the NCI60 dataset. The first two principal components contain 21.1% of the variance of the overall variance of the dataset. We will plot any resulting clusters against these two principal components to be able to visualise the results in two dimensions.
 
+### Hierarchical Clustering - Euclidean Distance
+
 First we perform hierarchical clustering, with complete linkage and euclidean distance, on the dataset for three to six clusters. From @tbl-cluster1 we can see the size of the resulting clusters. For the first cut of the dendrogram which creates three clusters, we have one large cluster with 6,792 features, and two smaller clusters with only 35 and 3 features. The next cut that creates four clusters does so by splitting the cluster with 35 features into two clusters with 29 and 6 features. For five clusters, the large cluster of 6,792 features is split into one large cluster with 6,559 features and one smaller cluster with 233 features. Lastly, for six clusters, the cluster with 29 features is split into two clusters with 22 and 7 features.
 
 From this description we can see that how we obtain clusters in hierarchical clustering results in a nested structure, where the clustering obtained by cutting the dendrogram at a certain height is contained within the clustering obtained by cutting the dendrogram at a greater height.
 
+@fig-hierarch_complete shows the resulting clusters plotted against the first two principal components of the data. As we can see, using a euclidean distance and complete linkage has resulted in one predominant cluster of genes and several smaller clusters. From this, we can deduce that a majority of genes have similar levels of expression across the cancer types in this dataset (or are at least close in euclidean space), while there are a small number of genes that have different levels of expression for the different cancer types.
 
-@fig-hierarch_complete shows the resulting clusters plotted against the first two principal components of the data. As we can see, using a euclidean distance and complete linkage has resulted in one predominant cluster of genes and several smaller clusters. From this, we may be able to deduce that across the 64 different cancer cell lines in our dataset, the majority of genes show similar levels of expression
+### Hierarchical Clustering - Correlation-Based Distance
 
 Now we repeat the same analysis, but instead of using the euclidean distance between two observations, $\mathbf{x}$ and $\mathbf{y}$, of $\sqrt{\sum_{i=1}^{n}(x_i-y_i)^2}$, we use a correlation based distance of $1 - \mbox{cor}(\mathbf{x}, \mathbf{y})$. We must take care to use the transpose of our data, as R's `cor` function calculates correlations between the columns of a matrix whereas we want the correlations between rows (i.e observations), for further details of the code see the Appendix. By subtracting one, we turn the correlations into a measure of closeness that ranges from 0 (for perfectly positively correlated observations) to 2 (for perfectly negatively correlated observations).
 
-The resulting size of the clusters is given in @tbl-cluster2, and they are plotted against the first two principal components in @fig-hierarch_corr. Compared to the hierarchical clustering we have more evenly sized clusters
+The resulting size of the clusters is given in @tbl-cluster2, and they are plotted against the first two principal components in @fig-hierarch_corr. Compared to the hierarchical clustering we have more evenly sized clusters, although they still retain the nested structure. Compared to a euclidean dissimilarity metric, a correlation-based metric will consider two observations to be close if their features are correlated, even if they are far apart in euclidean space (@islr2). This means that our clusters represent genes that have correlated cancer types, i.e. they show elevated or depressed levels of expression in the same cancer types (even if the magnitude of expression is quite different).
+
+### K-Means Clustering
 
 Lastly we perform K-means clustering on the data, using the `kmeans` function in R, for three to six clusters. The size of the resulting clusters is given in @tbl-cluster3. Similar to the hierarchical clustering with correlation based distance, we get more evenly sized clusters.
+
+K-means clustering uses a euclidean metric, like we used for the initial hierarchical clustering. That means it assigns observations to clusters that are close in euclidean space. However despite this, the clustering result we obtained appears most similar to the hierarchical clustering with correlation-based distance, with more evenly sized clusters. This is likely due to K-means clustering resulting in evenly sized spherical clusters (in terms of volume in the p-dimensional feature space). Assuming the density of our observations doesn't vary too much in the feature space, then we would expect relatively even numbers of observations in each cluster. 
 
 ## Question 3: Regression
 
